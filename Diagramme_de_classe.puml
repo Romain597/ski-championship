@@ -1,0 +1,58 @@
+@startuml skicuplogitud
+Event "1" *-- "0..N" Competitor : >
+Competitor "1" *-- "0..2" Passage : >
+Competitor "0..N" -- "1" Category : <
+Competitor "0..N" -- "1" Profile : <
+Passage "0..2" -- "1" Event : >
+Category ..|> CategorizationInterface
+Profile ..|> CategorizationInterface
+NegativeTimeException --|> Exception
+PassageNumberException --|> Exception
+PastDateException --|> Exception
+RaceIdentifierException --|> Exception
+LoaderData ..|> ExcelInterface
+ExportData ..|> ExcelInterface
+class Event {
+    -identifier : Integer
+    -name : String
+    -location : String
+    -beginDate : DateTime
+    -endDate : DateTime
+}
+class Competitor {
+    -identifier : Integer
+    -name : String
+    -raceIdentifier : String
+    -firstName : String
+    -birthDate : Date
+    -email : String
+    -picture : String
+    -picAvailable : Boolean
+}
+class Category {
+    -identifier : Integer
+    -name : String
+    -descirption : String
+}
+class Profile {
+    -identifier : Integer
+    -name : String
+    -descirption : String
+}
+class Passage {
+    -identifier : Integer
+    -passage : Integer
+    -time : Float
+}
+class ArchiveResult {
+    si cloture epreuve
+}
+class Exception
+class NegativeTimeException
+class PassageNumberException
+class PastDateException
+class LoaderData
+class ExportData
+interface ExcelInterface
+interface CategorizationInterface
+@enduml
