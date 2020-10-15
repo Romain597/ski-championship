@@ -16,18 +16,17 @@ class Event {
     -identifier : Integer
     -name : String
     -location : String
-    -beginDate : DateTime
-    -endDate : DateTime
+    -beginDate : DateTimeInterfce
+    -endDate : DateTimeInterface
 }
 class Competitor {
     -identifier : Integer
     -name : String
-    -raceIdentifier : String
     -firstName : String
-    -birthDate : Date
+    -raceNumber : Integer
+    -birthDate : DateTimeInterface
     -email : String
-    -picture : String
-    -picAvailable : Boolean
+    -photo : String
 }
 class Category {
     -identifier : Integer
@@ -41,7 +40,7 @@ class Profile {
 }
 class Passage {
     -identifier : Integer
-    -passage : Integer
+    -passageNumber : Integer
     -time : Float
 }
 class ArchiveResult {
@@ -49,8 +48,11 @@ class ArchiveResult {
 }
 class Exception
 class NegativeTimeException
-class PassageNumberException
+class TimeException
+class NegativePassageException
+class PassageBoundaryException
 class PastDateException
+class DateException
 class LoaderData
 class ExportData
 interface ExcelInterface
