@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Profile;
-use App\Exception\EmptyProfileException;
+use App\Exception\ProfileEmptyException;
 
 it('should create a profile with right parameters', function () {
 
@@ -32,19 +32,24 @@ it('should create a profile with right parameters', function () {
         'name' => 'profile3',
         'description' => 'text3'
     ];
-    $newProfile3 = new Profile($profileData3['name'], $profileData3['description'], $profileData3['identifier']);
+    $newProfile3 = new Profile($profileData3['name'], $profileData3['description'], 
+        $profileData3['identifier']);
     $this->assertInstanceOf(Profile::class, $newProfile3);
     $this->assertSame($profileData3, $newProfile3->toArray());
 
 });
 
-it('should throw a empty exception for instantiate a profile with bad parameter', function () {
+it('should throw a empty exception for instantiate a profile with empty strings parameter', 
+    function () {
     
-    $newProfile = new Profile('');
+    $newProfile1 = new Profile('');
 
-})->throws(EmptyProfileException::class);
+    $newProfile2 = new Profile('profile2', '');
 
-it('should throw a type exception for instantiate profiles with bad parameters', function () {
+})->throws(ProfileEmptyException::class);
+
+it('should throw a type error for instantiate a profile with bad types parameters', 
+    function () {
     
     $newProfile1 = new Profile(1);
 
@@ -54,9 +59,12 @@ it('should throw a type exception for instantiate profiles with bad parameters',
 
     $newProfile4 = new Profile([], '10.5', 1);
 
+    $newProfile5 = new Profile();
+
 })->throws(\TypeError::class);
 
-it('should be a array of properties in return of the "toArray()" method', function () {
+it('should return a array of a profile object properties for the method "toArray()"', 
+    function () {
 
     $newProfile = new Profile('profile1','text');
     $profileData = $newProfile->toArray();

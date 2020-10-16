@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\EmptyCategoryException;
+use App\Exception\CategoryEmptyException;
 
 class Category
 {
@@ -24,7 +24,10 @@ class Category
         ?int $identifier = null)
     {
         if (trim($name) == '') {
-            throw new EmptyCategoryException('The category name must not be empty.');
+            throw new CategoryEmptyException('The category name must not be empty.');
+        }
+        if (isset($description) === true && trim($description) === '' ) {
+            throw new CategoryEmptyException('The category description must not be a empty string.');
         }
         $this->name = $name;
         $this->description = $description;

@@ -4,6 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
+use App\Exception\EventEmptyException;
+use App\Exception\EventDateException;
+
 /**
  * Class Event
  * A event every years   
@@ -11,7 +14,6 @@ namespace App\Entity;
 class Event
 {
     private ?int $identifier;
-    //private string $uuid;
     private string $name;
     private string $location;
     private \DateTimeInterface $beginAt;
@@ -31,11 +33,27 @@ class Event
         \DateTimeInterface $beginAt, \DateTimeInterface $endAt, 
         ?int $identifier = null)
     {
+        $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        if (trim($name) == '') {
+            throw new EventEmptyException('The event name must not be empty.');
+        }
+        if (trim($location) == '') {
+            throw new EventEmptyException('The event location must not be empty.');
+        }
+        if ($beginAt < $currentDate) {
+            throw new EventDateException('The event begin date must not be in the past.');
+        }
+        if ($endAt < $currentDate) {
+            throw new EventDateException('The event end date must not be in the past.');
+        }
+        if ($endAt <= $beginAt) {
+            throw new EventDateException('The event end date must not be inferior or 
+                equals to the begin date.');
+        }
         $this->name = $name;
         $this->location = $location;
         $this->beginAt = $beginAt;
         $this->endAt = $endAt;
-        //$this->uuid = $uuid ?? str_replace( '.', '', uniqid('e',true) );
         $this->identifier = $identifier;
     }
     
@@ -47,6 +65,7 @@ class Event
     public function toArray() : array
     {
         return [
+            'identifier' => $this->identifier,
             'name' => $this->name,
             'location'=> $this->location,
             'beginAt' => $this->beginAt,

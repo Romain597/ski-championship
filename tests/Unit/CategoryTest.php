@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Category;
-use App\Exception\EmptyCategoryException;
+use App\Exception\CategoryEmptyException;
 
 it('should create a category with right parameters', function () {
 
@@ -32,19 +32,24 @@ it('should create a category with right parameters', function () {
         'name' => 'cat3',
         'description' => 'text3'
     ];
-    $newCategory3 = new Category($categoryData3['name'], $categoryData3['description'], $categoryData3['identifier']);
+    $newCategory3 = new Category($categoryData3['name'], $categoryData3['description'], 
+        $categoryData3['identifier']);
     $this->assertInstanceOf(Category::class, $newCategory3);
     $this->assertSame($categoryData3, $newCategory3->toArray());
 
 });
 
-it('should throw a empty exception for instantiate a category with bad parameter', function () {
+it('should throw a empty exception for instantiate a category with empty strings parameter', 
+    function () {
     
-    $newCategory = new Category('');
+    $newCategory1 = new Category('');
 
-})->throws(EmptyCategoryException::class);
+    $newCategory2 = new Category('cat2','');
 
-it('should throw a type exception for instantiate categories with bad parameters', function () {
+})->throws(CategoryEmptyException::class);
+
+it('should throw a type error for instantiate a category with bad types parameters', 
+    function () {
     
     $newCategory1 = new Category(1);
 
@@ -54,9 +59,12 @@ it('should throw a type exception for instantiate categories with bad parameters
 
     $newCategory4 = new Category([], '10.5', 1);
 
+    $newCategory5 = new Category();
+
 })->throws(\TypeError::class);
 
-it('should be a array of properties in return of the "toArray()" method', function () {
+it('should return a array of a category object properties for the method "toArray()"', 
+    function () {
 
     $newCategory = new Category('category1','text');
     $categoryData = $newCategory->toArray();

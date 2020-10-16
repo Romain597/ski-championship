@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\EmptyProfileException;
+use App\Exception\ProfileEmptyException;
 
 class Profile
 {
@@ -24,7 +24,10 @@ class Profile
         ?int $identifier = null)
     {
         if (trim($name) == '' ) {
-            throw new EmptyProfileException('The profile name must not be empty.');
+            throw new ProfileEmptyException('The profile name must not be empty.');
+        }
+        if (isset($description) === true && trim($description) === '' ) {
+            throw new ProfileEmptyException('The profile description must not be a empty string.');
         }
         $this->name = $name;
         $this->description = $description;
