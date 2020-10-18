@@ -5,8 +5,9 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Passage;
-use App\Exception\PassageNumberException;
-use App\Exception\PassageBoundaryException;
+use App\Exception\NegativeNumberException;
+use App\Exception\BoundaryNumberException;
+use App\Exception\AlreadySetException;
 
 function createPassageObject(array $passageDataParameter = []) : Passage
 {
@@ -61,7 +62,7 @@ it('should throw a negative passage exception for instantiate passages with bad 
             'time' => -10.5
         ]);
 
-})->throws(PassageNumberException::class);
+})->throws(NegativeNumberException::class);
 
 it('should throw a boundary passage exception for instantiate passages with bad parameters', 
     function () {
@@ -84,7 +85,7 @@ it('should throw a boundary passage exception for instantiate passages with bad 
             'time' => 100000
         ]);
 
-})->throws(PassageBoundaryException::class);
+})->throws(BoundaryNumberException::class);
 
 it('should throw a type error for instantiate a passage with bad types parameters', 
     function () {
@@ -146,10 +147,10 @@ it('should throw a exception when setting a passage number with a not conform in
             'time' => 100.5
         ]);
 
-    $this->expectException(PassageBoundaryException::class);
+    $this->expectException(BoundaryNumberException::class);
     $newPassage->setPassageNumber(0);
 
-    $this->expectException(PassageNumberException::class);
+    $this->expectException(NegativeNumberException::class);
     $newPassage->setPassageNumber(-1);
 
 });
@@ -163,10 +164,10 @@ it('should throw a exception when setting a passage time with a not conform floa
             'time' => 100.5
         ]);
 
-    $this->expectException(PassageBoundaryException::class);
+    $this->expectException(BoundaryNumberException::class);
     $newPassage->setTime(95000);
 
-    $this->expectException(PassageNumberException::class);
+    $this->expectException(NegativeNumberException::class);
     $newPassage->setTime(-200.1);
 
 });

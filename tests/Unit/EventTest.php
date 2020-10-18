@@ -5,8 +5,10 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Event;
-use App\Exception\EventEmptyException;
-use App\Exception\EventDateException;
+use App\Exception\EmptyStringException;
+use App\Exception\BoundaryDateException;
+use App\Exception\AlreadySetException;
+use App\Exception\PastDateException;
 
 it('should create a event with right parameters', function () {
 
@@ -51,7 +53,7 @@ it('should throw a empty exception for instantiate a event with empty strings pa
 
     $newEvent2 = new Event('event2', '', $dateObject1, $dateObject2);
 
-})->throws(EventEmptyException::class);
+})->throws(EmptyStringException::class);
 
 it('should throw a date exception for instantiate a event with bad dates parameters', 
     function () {
@@ -66,7 +68,7 @@ it('should throw a date exception for instantiate a event with bad dates paramet
 
     $newEvent3 = new Event('event2', 'alpes', $dateObject2, $dateObject1);
 
-})->throws(EventDateException::class);
+})->throws(BoundaryDateException::class);
 
 it('should throw a type error for instantiate a event with bad types parameters', 
     function () {

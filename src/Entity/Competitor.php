@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\CompetitorEmptyException;
-use App\Exception\CompetitorDateException;
-use App\Exception\CompetitorNumberException;
-use App\Exception\CompetitorDataFormatException;
+use App\Exception\EmptyStringException;
+use App\Exception\BoundaryDateException;
+use App\Exception\NegativeNumberException;
+use App\Exception\EmailAddressSyntaxException;
 use App\Exception\AlreadySetException;
+use App\Exception\BoundaryNumberException;
+use App\Exception\ImageExtensionException;
 
 /**
  * Class Competitor
@@ -19,6 +21,7 @@ class Competitor
     private ?int $identifier;
     private string $name;
     private string $firstName;
+    private string $emailAddress;
     private int $raceNumber;
     private \DateTimeInterface $birthDate;
     private ?string $photo;
@@ -32,18 +35,20 @@ class Competitor
      * @param  string $firstName
      * @param  int $raceNumber
      * @param  DateTimeInterface $birthDate
-     * @param  string $email
+     * @param  string $emailAddress
      * @param  string|null $photo Optional photo for Competitor
      * @param  int|null $identifier By default null
-     * @throws CompetitorEmptyException If name and/or firstname and/or email and/or photo 
+     * @throws EmptyStringException If name and/or firstname and/or email and/or photo 
      *      are empty strings
-     * @throws CompetitorDateException If birth date is not a valid date
-     * @throws CompetitorDataFormatException If email and/or photo format are not valid
-     * @throws CompetitorNumberException If race number is negative or equals to zero
+     * @throws BoundaryDateException If birth date is over or equal to max age for racing
+     * @throws EmailAddressSyntaxException If email address syntax is not valid
+     * @throws ImageExtensionException If photo file extension is not accepted
+     * @throws NegativeNumberException If race number is negative
+     * @throws BoundaryNumberException If race number is equal to zero
      * @return void
      */
     public function __construct(string $name, string $firstName, int $raceNumber, 
-        \DateTimeInterface $birthDate, string $email, ?string $photo = null, 
+        \DateTimeInterface $birthDate, string $emailAddress, ?string $photo = null, 
         ?int $identifier = null)
     {
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
@@ -51,28 +56,31 @@ class Competitor
         $birthDateYear = intval($birthDate->format('Y'));
         $birthDateLimitYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
         if ($birthDateYear <= $birthDateLimitYear) {
-            throw new CompetitorDateException('The competitor age must not be 
-                equals or superior to ' . self::MAX_AGE_FOR_RACING . ' years.');
+            throw new BoundaryDateException('The competitor age must not be 
+                equal or superior to ' . self::MAX_AGE_FOR_RACING . ' years.');
         }
-        if ($raceNumber <= 0) {
-            throw new CompetitorNumberException('The competitor race number must not be 
-                a negative number or the number zero.');
+        if ($raceNumber < 0) {
+            throw new NegativeNumberException('The competitor race number must not be 
+                a negative number.');
+        }
+        if ($raceNumber == 0) {
+            throw new BoundaryNumberException('The competitor race number must not be zero.');
         }
         if (trim($name) == '') {
-            throw new CompetitorEmptyException('The competitor name must not be empty.');
+            throw new EmptyStringException('The competitor name must not be empty.');
         }
         if (trim($firstName) == '') {
-            throw new CompetitorEmptyException('The competitor firstname must not be empty.');
+            throw new EmptyStringException('The competitor firstname must not be empty.');
         }
-        if (trim($email) == '') {
-            throw new CompetitorEmptyException('The competitor email must not be empty.');
+        if (trim($emailAddress) == '') {
+            throw new EmptyStringException('The competitor email address must not be empty.');
         }
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            throw new CompetitorDataFormatException('The competitor email must be 
+        if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL) === false) {
+            throw new EmailAddressSyntaxException('The competitor email address must be 
                 conform to syntax in RFC 822.');
         }
         if (isset($photo) === true && trim($photo) === '') {
-            throw new CompetitorEmptyException('The competitor photo must not be 
+            throw new EmptyStringException('The competitor photo must not be 
                 a empty string.');
         }
         $imageExtensionAcceptedArray = self::IMAGE_EXTENSION_ACCEPTED;
@@ -89,7 +97,7 @@ class Competitor
                     $imageExtensionAcceptedForException = preg_replace('/\,\s([^\,]+)$/i', 
                         " and $1", $imageExtensionAcceptedForException);
                 }
-                throw new CompetitorDataFormatException('The competitor photo must have 
+                throw new ImageExtensionException('The competitor photo must have 
                     a conform file extension (only accept 
                     ' . $imageExtensionAcceptedForException . ')');
             }
@@ -98,7 +106,7 @@ class Competitor
         $this->firstName = $firstName;
         $this->raceNumber = $raceNumber;
         $this->birthDate = $birthDate;
-        $this->email = $email;
+        $this->emailAddress = $emailAddress;
         $this->photo = $photo;
         $this->identifier = $identifier;
     }
@@ -160,13 +168,13 @@ class Competitor
     
     /**
      * @param  string $name
-     * @throws CompetitorEmptyException If parameter name is a empty string
+     * @throws EmptyStringException If parameter name is a empty string
      * @return void
      */
     public function setName(string $name) : void
     {
         if (trim($name) == '') {
-            throw new CompetitorEmptyException('The competitor name must not be empty.');
+            throw new EmptyStringException('The competitor name must not be empty.');
         }
         $this->name = $name;
     }
@@ -181,13 +189,13 @@ class Competitor
     
     /**
      * @param  string $firstname
-     * @throws CompetitorEmptyException If parameter first name is a empty string
+     * @throws EmptyStringException If parameter first name is a empty string
      * @return void
      */
     public function setFirstName(string $firstName) : void
     {
         if (trim($firstName) == '') {
-            throw new CompetitorEmptyException('The competitor firstname must not be empty.');
+            throw new EmptyStringException('The competitor firstname must not be empty.');
         }
         $this->firstName = $firstName;
     }
@@ -202,7 +210,7 @@ class Competitor
 
     /**
      * @param  DateTimeInterface $birthDate
-     * @throws CompetitorDateException If parameter birthDate is not a valid date
+     * @throws BoundaryDateException If parameter birth date is over or equal to max age for racing
      * @return void
      */
     public function setBirthDate(\DateTimeInterface $birthDate) : void
@@ -212,8 +220,8 @@ class Competitor
         $birthDateYear = intval($birthDate->format('Y'));
         $birthDateLimitYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
         if ($birthDateYear <= $birthDateLimitYear) {
-            throw new CompetitorDateException('The competitor age must not be 
-                equals or superior to ' . self::MAX_AGE_FOR_RACING . ' years.');
+            throw new BoundaryDateException('The competitor age must not be 
+                equal or superior to ' . self::MAX_AGE_FOR_RACING . ' years.');
         }
         $this->birthDate = $birthDate;
     }
@@ -221,27 +229,27 @@ class Competitor
     /**
      * @return string
      */
-    public function getEmail() : string
+    public function getEmailAddress() : string
     {
-        return $this->email;
+        return $this->emailAddress;
     }
     
     /**
-     * @param  string $email
-     * @throws CompetitorEmptyException If parameter email is a empty string
-     * @throws CompetitorDataFormatException If parameter email symtax is not valid
+     * @param  string $emailAddress
+     * @throws EmptyStringException If parameter email address is a empty string
+     * @throws EmailAddressSyntaxException If parameter email address symtax is not valid
      * @return void
      */
-    public function setEmail(string $email) : void
+    public function setEmailAddress(string $emailAddress) : void
     {
-        if (trim($email) == '') {
-            throw new CompetitorEmptyException('The competitor email must not be empty.');
+        if (trim($emailAddress) == '') {
+            throw new EmptyStringException('The competitor email address must not be empty.');
         }
-        if (filter_var($email, FILTER_VALIDATE_EMAIL) === false) {
-            throw new CompetitorDataFormatException('The competitor email must be 
+        if (filter_var($emailAddress, FILTER_VALIDATE_EMAIL) === false) {
+            throw new EmailAddressSyntaxException('The competitor email address must be 
                 conform to syntax in RFC 822.');
         }
-        $this->email = $email;
+        $this->emailAddress = $emailAddress;
     }
     
     /**
@@ -254,14 +262,18 @@ class Competitor
     
     /**
      * @param  int $raceNumber
-     * @throws CompetitorNumberException If parameter race number is negative or equals to zero
+     * @throws NegativeNumberException If parameter race number is negative
+     * @throws BoundaryNumberException If parameter race number is equal to zero
      * @return void
      */
     public function setRaceNumber(int $raceNumber) : void
     {
-        if ($raceNumber <= 0) {
-            throw new CompetitorNumberException('The competitor race number must not be 
-                a negative number or the number zero.');
+        if ($raceNumber < 0) {
+            throw new NegativeNumberException('The competitor race number must not be 
+                a negative number.');
+        }
+        if ($raceNumber == 0) {
+            throw new BoundaryNumberException('The competitor race number must not be zero.');
         }
         $this->raceNumber = $raceNumber;
     }
@@ -276,14 +288,14 @@ class Competitor
     
     /**
      * @param  string|null $photo
-     * @throws CompetitorEmptyException If parameter photo is a empty string
-     * @throws CompetitorDataFormatException If parameter photo extension is not valid
+     * @throws EmptyStringException If parameter photo is a empty string
+     * @throws ImageExtensionException If photo file extension is not accepted
      * @return void
      */
     public function setPhoto(?string $photo) : void
     {
         if (isset($photo) === true && trim($photo) === '') {
-            throw new CompetitorEmptyException('The competitor photo must not be 
+            throw new EmptyStringException('The competitor photo must not be 
                 a empty string.');
         }
         $imageExtensionAcceptedArray = self::IMAGE_EXTENSION_ACCEPTED;
@@ -300,22 +312,11 @@ class Competitor
                     $imageExtensionAcceptedForException = preg_replace('/\,\s([^\,]+)$/i', 
                         " and $1", $imageExtensionAcceptedForException);
                 }
-                throw new CompetitorDataFormatException('The competitor photo must have 
+                throw new ImageExtensionException('The competitor photo must have 
                     a conform file extension (only accept 
                     ' . $imageExtensionAcceptedForException . ')');
             }
         }
         $this->photo = $photo;
-    }
-
-    /**
-     * Save the Competitor into a database
-     *
-     * @param  GatewayInterface $gateway
-     * @return bool
-     */
-    public function saveCompetitor(GatewayInterface $gateway) : bool
-    {
-        return true;
     }
 }

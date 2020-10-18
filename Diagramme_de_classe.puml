@@ -8,6 +8,14 @@ Category ..|> CategorizationInterface
 Profile ..|> CategorizationInterface
 LoaderData ..|> ExcelInterface
 ExportData ..|> ExcelInterface
+AlreadySetException --|> Exception
+BoundaryDateException --|> Exception
+BoundaryNumberException --|> Exception
+EmptyStringException --|> Exception
+EmailAddressSyntaxException --|> Exception
+ImageExtensionException --|> Exception
+NegativeNumberException --|> Exception
+PastDateException --|> Exception
 class Event {
     -identifier : Integer
     -name : String
@@ -21,7 +29,7 @@ class Competitor {
     -firstName : String
     -raceNumber : Integer
     -birthDate : DateTimeInterface
-    -email : String
+    -emailAdress : String
     -photo : String
 }
 class Category {
@@ -43,16 +51,14 @@ class ArchiveResult {
     si cloture epreuve
 }
 class Exception
-class CategoryEmptyException
-class CompetitorDataFormatException
-class CompetitorDateException
-class CompetitorEmptyException
-class CompetitorNumberException
-class EventDateException
-class EventEmptyException
-class PassageBoundaryException
-class PassageNumberException
-class ProfileEmptyException
+class AlreadySetException
+class BoundaryDateException
+class BoundaryNumberException
+class EmptyStringException
+class EmailAddressSyntaxException
+class ImageExtensionException
+class NegativeNumberException
+class PastDateException
 class LoaderData
 class ExportData
 interface ExcelInterface

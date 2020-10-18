@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\CategoryEmptyException;
+use App\Exception\EmptyStringException;
 use App\Exception\AlreadySetException;
 
 class Category
@@ -19,17 +19,17 @@ class Category
      * @param  string $name
      * @param  string|null $description Optional description for Category
      * @param  int|null $identifier By default null
-     * @throws CategoryEmptyException If name and/or description are empty strings
+     * @throws EmptyStringException If name and/or description are empty strings
      * @return void
      */
     public function __construct(string $name, ?string $description = null, 
         ?int $identifier = null)
     {
         if (trim($name) == '') {
-            throw new CategoryEmptyException('The category name must not be empty.');
+            throw new EmptyStringException('The category name must not be empty.');
         }
         if (isset($description) === true && trim($description) === '' ) {
-            throw new CategoryEmptyException('The category description must not be a empty string.');
+            throw new EmptyStringException('The category description must not be a empty string.');
         }
         $this->name = $name;
         $this->description = $description;
@@ -89,13 +89,13 @@ class Category
     
     /**
      * @param  string $name
-     * @throws CategoryEmptyException If parameter name is a empty string
+     * @throws EmptyStringException If parameter name is a empty string
      * @return void
      */
     public function setName(string $name) : void
     {
         if (trim($name) == '') {
-            throw new CategoryEmptyException('The category name must not be empty.');
+            throw new EmptyStringException('The category name must not be empty.');
         }
         $this->name = $name;
     }
@@ -110,25 +110,14 @@ class Category
     
     /**
      * @param  string|null $description
-     * @throws CategoryEmptyException If parameter description is a empty string
+     * @throws EmptyStringException If parameter description is a empty string
      * @return void
      */
     public function setDescription(?string $description) : void
     {
         if (isset($description) === true && trim($description) === '' ) {
-            throw new CategoryEmptyException('The category description must not be a empty string.');
+            throw new EmptyStringException('The category description must not be a empty string.');
         }
         $this->description = $description;
-    }
-
-    /**
-     * Save the Category into a database
-     *
-     * @param  GatewayInterface $gateway
-     * @return bool
-     */
-    public function saveCategory(GatewayInterface $gateway) : bool
-    {
-        return true;
     }
 }

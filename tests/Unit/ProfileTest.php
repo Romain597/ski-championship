@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Tests\Unit;
 
-use App\Entity\Profile;
-use App\Exception\ProfileEmptyException;
+use App\Exception\EmptyStringException;
+use App\Exception\AlreadySetException;
 
 it('should create a profile with right parameters', function () {
 
@@ -46,7 +46,7 @@ it('should throw a empty exception for instantiate a profile with empty strings 
 
     $newProfile2 = new Profile('profile2', '');
 
-})->throws(ProfileEmptyException::class);
+})->throws(EmptyStringException::class);
 
 it('should throw a type error for instantiate a profile with bad types parameters', 
     function () {
@@ -84,7 +84,7 @@ it('should return a array of a profile object properties for the method "toArray
             'description' => 'text2'
         ]);
 
-    $this->expectException(PassageBoundaryException::class);
+    $this->expectException(BoundaryNumberException::class);
     $newProfile->setTime(95000);
 
 });*/

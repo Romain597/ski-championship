@@ -4,9 +4,10 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\EventEmptyException;
-use App\Exception\EventDateException;
+use App\Exception\EmptyStringException;
+use App\Exception\BoundaryDateException;
 use App\Exception\AlreadySetException;
+use App\Exception\PastDateException;
 
 /**
  * Class Event
@@ -28,8 +29,9 @@ class Event
      * @param  DateTimeInterface $beginAt
      * @param  DateTimeInterface $endAt
      * @param  int|null $identifier By default null
-     * @throws EventEmptyException If name and/or location are empty strings
-     * @throws EventDateException If beginAt and/or endAt are not valid dates
+     * @throws EmptyStringException If name and/or location are empty strings
+     * @throws BoundaryDateException If end date is equal or inferior to begin date
+     * @throws PastDateException If begin date and/or end date are in the past
      * @return void
      */
     public function __construct(string $name, string $location, 
@@ -37,21 +39,21 @@ class Event
         ?int $identifier = null)
     {
         if (trim($name) == '') {
-            throw new EventEmptyException('The event name must not be empty.');
+            throw new EmptyStringException('The event name must not be empty.');
         }
         if (trim($location) == '') {
-            throw new EventEmptyException('The event location must not be empty.');
+            throw new EmptyStringException('The event location must not be empty.');
         }
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         if ($beginAt < $currentDate) {
-            throw new EventDateException('The event begin date must not be in the past.');
+            throw new PastDateException('The event begin date must not be in the past.');
         }
         if ($endAt < $currentDate) {
-            throw new EventDateException('The event end date must not be in the past.');
+            throw new PastDateException('The event end date must not be in the past.');
         }
         if ($endAt <= $beginAt) {
-            throw new EventDateException('The event end date must not be inferior or 
-                equals to the begin date.');
+            throw new BoundaryDateException('The event end date must not be inferior or 
+                equal to the begin date.');
         }
         $this->name = $name;
         $this->location = $location;
@@ -115,13 +117,13 @@ class Event
     
     /**
      * @param  string $name
-     * @throws EventEmptyException If parameter name is a empty string
+     * @throws EmptyStringException If parameter name is a empty string
      * @return void
      */
     public function setName(string $name) : void
     {
         if (trim($name) == '') {
-            throw new EventEmptyException('The event name must not be empty.');
+            throw new EmptyStringException('The event name must not be empty.');
         }
         $this->name = $name;
     }
@@ -136,13 +138,13 @@ class Event
     
     /**
      * @param  string $location
-     * @throws EventEmptyException If parameter location is a empty string
+     * @throws EmptyStringException If parameter location is a empty string
      * @return void
      */
     public function setLocation(string $location) : void
     {
         if (trim($location) == '') {
-            throw new EventEmptyException('The event location must not be empty.');
+            throw new EmptyStringException('The event location must not be empty.');
         }
         $this->location = $location;
     }
@@ -150,21 +152,21 @@ class Event
     /**
      * @return DateTimeInterface
      */
-    public function getBeginAt() : \DateTimeInterface
+    public function getBeginDate() : \DateTimeInterface
     {
         return $this->beginAt;
     }
 
     /**
      * @param  DateTimeInterface $beginAt
-     * @throws EventDateException If parameter beginAt is not a valid date
+     * @throws PastDateException If parameter begin date is in the past
      * @return void
      */
-    public function setBeginAt(\DateTimeInterface $beginAt) : void
+    public function setBeginDate(\DateTimeInterface $beginAt) : void
     {
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         if ($beginAt < $currentDate) {
-            throw new EventDateException('The event begin date must not be in the past.');
+            throw new PastDateException('The event begin date must not be in the past.');
         }
         $this->beginAt = $beginAt;
     }
@@ -172,37 +174,27 @@ class Event
     /**
      * @return DateTimeInterface
      */
-    public function getEndAt() : \DateTimeInterface
+    public function getEndDate() : \DateTimeInterface
     {
         return $this->endAt;
     }
 
     /**
      * @param  DateTimeInterface $endAt
-     * @throws EventDateException If parameter endAt is not a valid date
+     * @throws PastDateException If parameter end date is in the past
+     * @throws BoundaryDateException If end date is equal or inferior to begin date
      * @return void
      */
-    public function setEndAt(\DateTimeInterface $endAt) : void
+    public function setEndDate(\DateTimeInterface $endAt) : void
     {
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         if ($endAt < $currentDate) {
-            throw new EventDateException('The event end date must not be in the past.');
+            throw new PastDateException('The event end date must not be in the past.');
         }
         if ($endAt <= $this->beginAt) {
-            throw new EventDateException('The event end date must not be inferior or 
-                equals to the begin date.');
+            throw new BoundaryDateException('The event end date must not be inferior or 
+                equal to the begin date.');
         }
         $this->beginAt = $endAt;
-    }
-
-    /**
-     * Save the Event into a database
-     *
-     * @param  GatewayInterface $gateway
-     * @return bool
-     */
-    public function saveEvent(GatewayInterface $gateway) : bool
-    {
-        return true;
     }
 }

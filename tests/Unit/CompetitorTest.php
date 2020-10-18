@@ -5,10 +5,13 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Competitor;
-use App\Exception\CompetitorEmptyException;
-use App\Exception\CompetitorDateException;
-use App\Exception\CompetitorNumberException;
-use App\Exception\CompetitorDataFormatException;
+use App\Exception\EmptyStringException;
+use App\Exception\BoundaryDateException;
+use App\Exception\NegativeNumberException;
+use App\Exception\EmailAddressSyntaxException;
+use App\Exception\AlreadySetException;
+use App\Exception\BoundaryNumberException;
+use App\Exception\ImageExtensionException;
 
 it('should create a competitor with right parameters', function () {
 
@@ -76,7 +79,7 @@ it('should throw a empty exception for instantiate a competitor with empty strin
     $newCompetitor4 = new Competitor('name', 'firstName', 1, $dateObject, 
         'email@test.fr', '');
 
-})->throws(CompetitorEmptyException::class);
+})->throws(EmptyStringException::class);
 
 it('should throw a date exception for instantiate a competitor with bad date parameter', 
     function () {
@@ -87,7 +90,7 @@ it('should throw a date exception for instantiate a competitor with bad date par
     $newCompetitor1 = new Competitor('name', 'firstName', 1, $dateObject1, 
         'email@test.fr');
 
-})->throws(CompetitorDateException::class);
+})->throws(BoundaryDateException::class);
 
 it('should throw a number exception for instantiate a competitor with bad number parameter', 
     function () {
@@ -100,7 +103,7 @@ it('should throw a number exception for instantiate a competitor with bad number
     $newCompetitor1 = new Competitor('name', 'firstName', -1, $dateObject, 
         'email@test.fr');
 
-})->throws(CompetitorNumberException::class);
+})->throws(NegativeNumberException::class);
 
 it('should throw a data format exception for instantiate a competitor with bad format parameters', 
     function () {
@@ -116,7 +119,7 @@ it('should throw a data format exception for instantiate a competitor with bad f
     $newCompetitor3 = new Competitor('name', 'firstName', 1, $dateObject, 
         'email@test.fr', 'dossier/photo.truc');
 
-})->throws(CompetitorDataFormatException::class);
+})->throws(EmailAddressSyntaxException::class);
 
 it('should throw a type error for instantiate a event with bad types parameters', 
     function () {

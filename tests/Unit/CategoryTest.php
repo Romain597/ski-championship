@@ -5,7 +5,8 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Category;
-use App\Exception\CategoryEmptyException;
+use App\Exception\EmptyStringException;
+use App\Exception\AlreadySetException;
 
 it('should create a category with right parameters', function () {
 
@@ -46,7 +47,7 @@ it('should throw a empty exception for instantiate a category with empty strings
 
     $newCategory2 = new Category('cat2','');
 
-})->throws(CategoryEmptyException::class);
+})->throws(EmptyStringException::class);
 
 it('should throw a type error for instantiate a category with bad types parameters', 
     function () {

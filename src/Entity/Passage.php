@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\PassageNumberException;
-use App\Exception\PassageBoundaryException;
+use App\Exception\NegativeNumberException;
+use App\Exception\BoundaryNumberException;
 use App\Exception\AlreadySetException;
 
 class Passage
@@ -23,28 +23,28 @@ class Passage
      * @param  int $passageNumber
      * @param  float $time
      * @param  int|null $identifier By default null
-     * @throws PassageNumberException If time and/or passage number are negatives
-     * @throws PassageBoundaryException If time and/or passage number are out of boundaries
+     * @throws NegativeNumberException If time and/or passage number are negatives
+     * @throws BoundaryNumberException If time and/or passage number are out of boundaries
      * @return void
      */
     public function __construct(int $passageNumber, float $time, 
         ?int $identifier = null)
     {
         if ($passageNumber < 0) {
-            throw new PassageNumberException('The passage parameter must not be 
+            throw new NegativeNumberException('The passage parameter must not be 
                 a negative number.');
         }
         if ($time < 0) {
-            throw new PassageNumberException('The time parameter must not be 
+            throw new NegativeNumberException('The time parameter must not be 
                 a negative number.');
         }
         if ($passageNumber < self::MIN_PASSAGE || $passageNumber > self::MAX_PASSAGE) {
-            throw new PassageBoundaryException('The passage parameter must not be 
+            throw new BoundaryNumberException('The passage parameter must not be 
                 a number out of boundaries (only accept ' . self::MIN_PASSAGE . ' 
                 or ' . self::MAX_PASSAGE . ').');
         }
         if ($time > self::MAX_TIME) {
-            throw new PassageBoundaryException('The time parameter must not be 
+            throw new BoundaryNumberException('The time parameter must not be 
                 a number out of boundary (limit to ' . self::MAX_TIME . ').');
         }
         $this->passageNumber = $passageNumber;
@@ -105,18 +105,18 @@ class Passage
     
     /**
      * @param  int $passageNumber
-     * @throws PassageNumberException If parameter passage number is negative
-     * @throws PassageBoundaryException If parameter passage number is out of boundaries
+     * @throws NegativeNumberException If parameter passage number is negative
+     * @throws BoundaryNumberException If parameter passage number is out of boundaries
      * @return void
      */
     public function setPassageNumber(int $passageNumber) : void
     {
         if ($passageNumber < 0) {
-            throw new PassageNumberException('The passage parameter must not be 
+            throw new NegativeNumberException('The passage parameter must not be 
                 a negative number.');
         }
         if ($passageNumber < self::MIN_PASSAGE || $passageNumber > self::MAX_PASSAGE) {
-            throw new PassageBoundaryException('The passage parameter must not be 
+            throw new BoundaryNumberException('The passage parameter must not be 
                 a number out of boundaries (only accept ' . self::MIN_PASSAGE . ' 
                 or ' . self::MAX_PASSAGE . ').');
         }
@@ -133,31 +133,20 @@ class Passage
     
     /**
      * @param  float $time
-     * @throws PassageNumberException If parameter time number is negative
-     * @throws PassageBoundaryException If parameter time number is out of boundaries
+     * @throws NegativeNumberException If parameter time number is negative
+     * @throws BoundaryNumberException If parameter time number is out of boundaries
      * @return void
      */
     public function setTime(float $time) : void
     {
         if ($time < 0) {
-            throw new PassageNumberException('The time parameter must not be 
+            throw new NegativeNumberException('The time parameter must not be 
                 a negative number.');
         }
         if ($time > self::MAX_TIME) {
-            throw new PassageBoundaryException('The time parameter must not be 
+            throw new BoundaryNumberException('The time parameter must not be 
                 a number out of boundary (limit to ' . self::MAX_TIME . ').');
         }
         $this->time = $time;
-    }
-
-    /**
-     * Save the Passage into a database
-     *
-     * @param  GatewayInterface $gateway
-     * @return bool
-     */
-    public function savePassage(GatewayInterface $gateway) : bool
-    {
-        return true;
     }
 }
