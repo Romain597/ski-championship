@@ -74,3 +74,17 @@ it('should return a array of a profile object properties for the method "toArray
     $this->assertArrayHasKey('description', $profileData);
 
 });
+
+/*it('should throw a exception when setting a passage time with a not conform float', 
+    function () {
+
+    $newProfile = createProfileObject([
+            'identifier' => null,
+            'name' => 'profile2',
+            'description' => 'text2'
+        ]);
+
+    $this->expectException(PassageBoundaryException::class);
+    $newProfile->setTime(95000);
+
+});*/

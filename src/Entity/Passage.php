@@ -6,6 +6,7 @@ namespace App\Entity;
 
 use App\Exception\PassageNumberException;
 use App\Exception\PassageBoundaryException;
+use App\Exception\AlreadySetException;
 
 class Passage
 {
@@ -22,6 +23,8 @@ class Passage
      * @param  int $passageNumber
      * @param  float $time
      * @param  int|null $identifier By default null
+     * @throws PassageNumberException If time and/or passage number are negatives
+     * @throws PassageBoundaryException If time and/or passage number are out of boundaries
      * @return void
      */
     public function __construct(int $passageNumber, float $time, 
@@ -62,22 +65,50 @@ class Passage
             'time' => $this->time
         ];
     }
+    
+    /**
+     * @return bool
+     */
+    public function isSaved() : bool
+    {
+        return isset($this->identifier) ? true : false;
+    }
 
+    /**
+     * @return int
+     */
     public function getIdentifier() : int
     {
         return $this->identifier;
     }
-    
+        
+    /**
+     * @param  int $identifier
+     * @throws AlreadySetException If the identifier is already set
+     * @return void
+     */
     public function setIdentifier(int $identifier) : void
     {
+        if ($this->isSaved() === true) {
+            throw new AlreadySetException('It is not possible to set a passage identifier already set.');
+        }
         $this->identifier = $identifier;
     }
-
+    
+    /**
+     * @return int
+     */
     public function getPassageNumber() : int
     {
         return $this->passageNumber;
     }
-
+    
+    /**
+     * @param  int $passageNumber
+     * @throws PassageNumberException If parameter passage number is negative
+     * @throws PassageBoundaryException If parameter passage number is out of boundaries
+     * @return void
+     */
     public function setPassageNumber(int $passageNumber) : void
     {
         if ($passageNumber < 0) {
@@ -91,12 +122,21 @@ class Passage
         }
         $this->passageNumber = $passageNumber;
     }
-
+    
+    /**
+     * @return float
+     */
     public function getTime() : float
     {
         return $this->time;
     }
-
+    
+    /**
+     * @param  float $time
+     * @throws PassageNumberException If parameter time number is negative
+     * @throws PassageBoundaryException If parameter time number is out of boundaries
+     * @return void
+     */
     public function setTime(float $time) : void
     {
         if ($time < 0) {

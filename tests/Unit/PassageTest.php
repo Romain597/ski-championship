@@ -32,7 +32,7 @@ it('should create a passage with right parameters', function () {
     ];
     $newPassage1 = new Passage($passageData1['passageNumber'], $passageData1['time']);
     $this->assertInstanceOf(Passage::class, $newPassage1);
-    $this->assertEquals($passageData1, $newPassage1->toArray());
+    $this->assertSame($passageData1, $newPassage1->toArray());
 
     $passageData2 = [
         'identifier' => 12,
@@ -42,7 +42,7 @@ it('should create a passage with right parameters', function () {
     $newPassage2 = new Passage($passageData2['passageNumber'], $passageData2['time'], 
         $passageData2['identifier']);
     $this->assertInstanceOf(Passage::class, $newPassage2);
-    $this->assertEquals($passageData2, $newPassage2->toArray());
+    $this->assertSame($passageData2, $newPassage2->toArray());
 
 });
 
@@ -134,87 +134,6 @@ it('should return a array of a passage object properties for the method "toArray
     $this->assertArrayHasKey('identifier', $passageData);
     $this->assertArrayHasKey('passageNumber', $passageData);
     $this->assertArrayHasKey('time', $passageData);
-
-});
-
-it('should return a passage identifier of type integer', function () {
-
-    $newPassage = createPassageObject([
-            'identifier' => 1,
-            'passageNumber' => 2,
-            'time' => 100.5
-        ]);
-
-    $identifier = $newPassage->getIdentifier();
-    $this->assertIsInt($identifier);
-    $this->assertSame(1, $identifier);
-
-});
-
-it('should return a passage number of type integer', function () {
-
-    $newPassage = createPassageObject([
-            'identifier' => 1,
-            'passageNumber' => 2,
-            'time' => 100.5
-        ]);
-
-    $passageNumber = $newPassage->getPassageNumber();
-    $this->assertIsInt($passageNumber);
-    $this->assertSame(2, $passageNumber);
-
-});
-
-it('should return a passage time of type float', function () {
-
-    $newPassage = createPassageObject([
-            'identifier' => 1,
-            'passageNumber' => 2,
-            'time' => 100.5
-        ]);
-
-    $time = $newPassage->getTime();
-    $this->assertIsFloat($time);
-    $this->assertSame(100.5, $time);
-
-});
-
-it('should set a passage identifier of type integer', function () {
-
-    $newPassage = createPassageObject([
-            'identifier' => 1,
-            'passageNumber' => 2,
-            'time' => 100.5
-        ]);
-
-    $newPassage->setIdentifier(3);
-    $this->assertSame(3, $newPassage->getIdentifier());
-
-});
-
-it('should set a passage number of type integer', function () {
-
-    $newPassage = createPassageObject([
-            'identifier' => 1,
-            'passageNumber' => 2,
-            'time' => 100.5
-        ]);
-
-    $newPassage->setPassageNumber(1);
-    $this->assertSame(1, $newPassage->getPassageNumber());
-
-});
-
-it('should set a passage time of type float', function () {
-
-    $newPassage = createPassageObject([
-            'identifier' => 1,
-            'passageNumber' => 2,
-            'time' => 100.5
-        ]);
-
-    $newPassage->setTime(200.1);
-    $this->assertSame(200.1, $newPassage->getTime());
 
 });
 
