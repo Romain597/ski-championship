@@ -10,6 +10,26 @@ use App\Exception\BoundaryDateException;
 use App\Exception\AlreadySetException;
 use App\Exception\PastDateException;
 
+function createEventObject(array $eventDataParameter = []) : Event
+{
+    $dateObject = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+    $dateObject1 = $dateObject->modify('+1 hour');
+    $dateObject2 = $dateObject->modify('+2 hours');
+    $eventData = [
+        'identifier' => 1,
+        'name' => 'test',
+        'location'=> 'Alpes',
+        'beginAt' => $dateObject1,
+        'endAt' => $dateObject2
+    ];
+    if (!empty($eventDataParameter) === true && 
+        count(array_diff_key($eventDataParameter,$eventData)) === 0) {
+        $eventData = $eventDataParameter;
+    }
+    return new Event($eventData['name'], $eventData['location'], 
+        $eventData['beginAt'], $eventData['endAt'], $eventData['identifier']);
+}
+
 it('should create a event with right parameters', function () {
 
     $dateObject = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
@@ -29,7 +49,7 @@ it('should create a event with right parameters', function () {
     $this->assertSame($eventData1, $newEvent1->toArray());
 
     $eventData2 = [
-        'identifier' => null,
+        'identifier' => 1,
         'name' => 'test',
         'location'=> 'Alpes',
         'beginAt' => $dateObject1,
@@ -55,7 +75,18 @@ it('should throw a empty exception for instantiate a event with empty strings pa
 
 })->throws(EmptyStringException::class);
 
-it('should throw a date exception for instantiate a event with bad dates parameters', 
+it('should throw a boundary date exception for instantiate a event with bad dates parameters', 
+    function () {
+    
+    $dateObject = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+    $dateObject1 = $dateObject->modify('+2 hours');
+    $dateObject2 = $dateObject->modify('+1 hour');
+
+    $newEvent1 = new Event('event1', 'alpes', $dateObject1, $dateObject2);
+
+})->throws(BoundaryDateException::class);
+
+it('should throw a past date exception for instantiate a event with bad dates parameters', 
     function () {
     
     $dateObject = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
@@ -64,11 +95,7 @@ it('should throw a date exception for instantiate a event with bad dates paramet
 
     $newEvent1 = new Event('event1', 'alpes', $dateObject1, $dateObject2);
 
-    $newEvent2 = new Event('event2', 'alpes', $dateObject1, $dateObject2);
-
-    $newEvent3 = new Event('event2', 'alpes', $dateObject2, $dateObject1);
-
-})->throws(BoundaryDateException::class);
+})->throws(PastDateException::class);
 
 it('should throw a type error for instantiate a event with bad types parameters', 
     function () {
@@ -108,3 +135,54 @@ it('should return a array of a event object properties for the method "toArray()
     $this->assertArrayHasKey('endAt', $eventData);
 
 });
+
+it('should throw a empty exception for setting a property with empty strings parameter', 
+    function () {
+    
+    $newEvent = createEventObject();
+    
+    $newEvent->setName('');
+
+    $newEvent->setLocation('');
+
+})->throws(EmptyStringException::class);
+
+it('should throw a past date exception for setting a property with a past date parameter', 
+    function () {
+    
+    $newEvent = createEventObject();
+
+    $dateObject = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+    $dateObject->modify('-1 hour');
+    
+    $newEvent->setBeginDate($dateObject);
+
+    $newEvent->setEndDate($dateObject);
+
+})->throws(PastDateException::class);
+
+it('should throw a boundary date exception for setting a property with a past date parameter', 
+    function () {
+    
+    $dateObject = new \DateTimeImmutable('now', new \DateTimeZone('Europe/Paris'));
+    $dateObject1 = $dateObject->modify('+1 hour');
+    $dateObject2 = $dateObject->modify('+2 hours');
+    $newEvent = createEventObject([
+        'identifier' => 1,
+        'name' => 'test',
+        'location'=> 'Alpes',
+        'beginAt' => $dateObject1,
+        'endAt' => $dateObject2
+    ]);
+
+    $newEvent->setEndDate($dateObject1);
+
+})->throws(BoundaryDateException::class);
+
+it('should throw a identifier already set exception', function () {
+
+    $newEvent = createEventObject();
+
+    $newEvent->setIdentifier(2);
+
+})->throws(AlreadySetException::class);

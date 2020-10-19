@@ -138,7 +138,7 @@ it('should return a array of a passage object properties for the method "toArray
 
 });
 
-it('should throw a exception when setting a passage number with a not conform integer', 
+it('should throw number exceptions when setting a passage number with a not conform integer', 
     function () {
 
     $newPassage = createPassageObject([
@@ -155,7 +155,7 @@ it('should throw a exception when setting a passage number with a not conform in
 
 });
 
-it('should throw a exception when setting a passage time with a not conform float', 
+it('should throw number exceptions when setting a passage time with a not conform float', 
     function () {
 
     $newPassage = createPassageObject([
@@ -171,3 +171,15 @@ it('should throw a exception when setting a passage time with a not conform floa
     $newPassage->setTime(-200.1);
 
 });
+
+it('should throw a identifier already set exception', function () {
+
+    $newPassage = createPassageObject([
+            'identifier' => 1,
+            'passageNumber' => 2,
+            'time' => 100.5
+        ]);
+
+    $newPassage->setIdentifier(2);
+
+})->throws(AlreadySetException::class);

@@ -26,6 +26,7 @@ class Competitor
     private \DateTimeInterface $birthDate;
     private ?string $photo;
     private const MAX_AGE_FOR_RACING = 120;
+    private const MIN_AGE_FOR_RACING = 18;
     private const IMAGE_EXTENSION_ACCEPTED = ['jpg', 'png'];
         
     /**
@@ -54,10 +55,15 @@ class Competitor
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $currentDateYear = intval($currentDate->format('Y'));
         $birthDateYear = intval($birthDate->format('Y'));
-        $birthDateLimitYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
-        if ($birthDateYear <= $birthDateLimitYear) {
+        $birthDateMaxYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
+        if ($birthDateYear <= $birthDateMaxYear) {
             throw new BoundaryDateException('The competitor age must not be 
                 equal or superior to ' . self::MAX_AGE_FOR_RACING . ' years.');
+        }
+        $birthDateMinYear = $currentDateYear - self::MIN_AGE_FOR_RACING;
+        if ($birthDateYear > $birthDateMinYear) {
+            throw new BoundaryDateException('The competitor age must not be 
+                inferior to ' . self::MIN_AGE_FOR_RACING . ' years.');
         }
         if ($raceNumber < 0) {
             throw new NegativeNumberException('The competitor race number must not be 
@@ -124,7 +130,7 @@ class Competitor
             'firstName' => $this->firstName,
             'raceNumber' => $this->raceNumber,
             'birthDate' => $this->birthDate,
-            'email' => $this->email,
+            'emailAddress' => $this->emailAddress,
             'photo' => $this->photo
         ];
     }
@@ -218,10 +224,15 @@ class Competitor
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $currentDateYear = intval($currentDate->format('Y'));
         $birthDateYear = intval($birthDate->format('Y'));
-        $birthDateLimitYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
-        if ($birthDateYear <= $birthDateLimitYear) {
+        $birthDateMaxYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
+        if ($birthDateYear <= $birthDateMaxYear) {
             throw new BoundaryDateException('The competitor age must not be 
                 equal or superior to ' . self::MAX_AGE_FOR_RACING . ' years.');
+        }
+        $birthDateMinYear = $currentDateYear - self::MIN_AGE_FOR_RACING;
+        if ($birthDateYear > $birthDateMinYear) {
+            throw new BoundaryDateException('The competitor age must not be 
+                inferior to ' . self::MIN_AGE_FOR_RACING . ' years.');
         }
         $this->birthDate = $birthDate;
     }
