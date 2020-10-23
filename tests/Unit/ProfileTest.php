@@ -5,22 +5,27 @@ declare(strict_types=1);
 namespace App\Tests\Unit;
 
 use App\Entity\Profile;
-use App\Exception\EmptyStringException;
-use App\Exception\AlreadySetException;
+use App\Entity\Exception\EmptyStringException;
+use App\Entity\Exception\AlreadySetException;
 
-function createProfileObject(array $profileDataParameter = []) : Profile
+function createProfileObject(array $profileDataParameter = []): Profile
 {
     $profileData = [
         'identifier' => 4,
         'name' => 'profile',
         'description' => 'text'
     ];
-    if (!empty($profileDataParameter) === true && 
-        count(array_diff_key($profileDataParameter,$profileData)) === 0) {
+    if (
+        !empty($profileDataParameter) === true &&
+        count(array_diff_key($profileDataParameter, $profileData)) === 0
+    ) {
         $profileData = $profileDataParameter;
     }
-    return new Profile($profileData['name'], $profileData['description'], 
-        $profileData['identifier']);
+    return new Profile(
+        $profileData['name'],
+        $profileData['description'],
+        $profileData['identifier']
+    );
 }
 
 it('should create a profile with right parameters', function () {
@@ -48,66 +53,72 @@ it('should create a profile with right parameters', function () {
         'name' => 'profile3',
         'description' => 'text3'
     ];
-    $newProfile3 = new Profile($profileData3['name'], $profileData3['description'], 
-        $profileData3['identifier']);
+    $newProfile3 = new Profile(
+        $profileData3['name'],
+        $profileData3['description'],
+        $profileData3['identifier']
+    );
     $this->assertInstanceOf(Profile::class, $newProfile3);
     $this->assertSame($profileData3, $newProfile3->toArray());
-
 });
 
-it('should throws empty string exception for instantiate a profile with empty strings parameter', 
-    function () {
-    
-    $newProfile1 = new Profile('');
-
-    $newProfile2 = new Profile('profile2', '');
-
-})->throws(EmptyStringException::class);
-
-it('should throws type error for instantiate a profile with bad types parameters', 
-    function () {
-    
-    $newProfile1 = new Profile(1);
-
-    $newProfile2 = new Profile(null, 'a');
-
-    $newProfile3 = new Profile('b', true);
-
-    $newProfile4 = new Profile([], '10.5', 1);
-
-    $newProfile5 = new Profile();
-
-})->throws(\TypeError::class);
-
-it('should return a array of a profile object properties for the method "toArray()"', 
+it(
+    'should throws empty string exception for instantiate a profile with empty strings parameter',
     function () {
 
-    $newProfile = createProfileObject([
+        $newProfile1 = new Profile('');
+
+        $newProfile2 = new Profile('profile2', '');
+    }
+)->throws(EmptyStringException::class);
+
+it(
+    'should throws type error for instantiate a profile with bad types parameters',
+    function () {
+
+        $newProfile1 = new Profile(1);
+
+        $newProfile2 = new Profile(null, 'a');
+
+        $newProfile3 = new Profile('b', true);
+
+        $newProfile4 = new Profile([], '10.5', 1);
+
+        $newProfile5 = new Profile();
+    }
+)->throws(\TypeError::class);
+
+it(
+    'should return a array of a profile object properties for the method "toArray()"',
+    function () {
+
+        $newProfile = createProfileObject([
             'identifier' => null,
             'name' => 'profile1',
             'description' => 'text'
         ]);
-    $profileData = $newProfile->toArray();
-    $this->assertIsArray($profileData);
-    $this->assertArrayHasKey('identifier', $profileData);
-    $this->assertArrayHasKey('name', $profileData);
-    $this->assertArrayHasKey('description', $profileData);
+        $profileData = $newProfile->toArray();
+        $this->assertIsArray($profileData);
+        $this->assertArrayHasKey('identifier', $profileData);
+        $this->assertArrayHasKey('name', $profileData);
+        $this->assertArrayHasKey('description', $profileData);
+    }
+);
 
-});
-
-it('should throws a empty string exception when setting a profile string property', 
+it(
+    'should throws a empty string exception when setting a profile string property',
     function () {
 
-    $newProfile = createProfileObject([
+        $newProfile = createProfileObject([
             'identifier' => null,
             'name' => 'profile2',
             'description' => 'text2'
         ]);
-    
-    $newProfile->setName('');
-    $newProfile->setDescription('');  
 
-})->throws(EmptyStringException::class);
+        $newProfile->setName('');
+        $newProfile->setDescription('');
+    }
+)->throws(EmptyStringException::class);
 
 it('should throw a identifier already set exception', function () {
 
@@ -118,5 +129,4 @@ it('should throw a identifier already set exception', function () {
     ]);
 
     $newProfile->setIdentifier(2);
-
 })->throws(AlreadySetException::class);

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\EmptyStringException;
-use App\Exception\BoundaryDateException;
-use App\Exception\NegativeNumberException;
-use App\Exception\EmailAddressSyntaxException;
-use App\Exception\AlreadySetException;
-use App\Exception\BoundaryNumberException;
-use App\Exception\ImageExtensionException;
+use App\Entity\Exception\EmptyStringException;
+use App\Entity\Exception\BoundaryDateException;
+use App\Entity\Exception\NegativeNumberException;
+use App\Entity\Exception\EmailAddressSyntaxException;
+use App\Entity\Exception\AlreadySetException;
+use App\Entity\Exception\BoundaryNumberException;
+use App\Entity\Exception\ImageExtensionException;
 
 /**
  * Class Competitor
@@ -28,7 +28,7 @@ class Competitor
     private const MAX_AGE_FOR_RACING = 120;
     private const MIN_AGE_FOR_RACING = 18;
     private const IMAGE_EXTENSION_ACCEPTED = ['jpg', 'png'];
-        
+
     /**
      * Construct and initialize the instance of the object
      *
@@ -48,10 +48,15 @@ class Competitor
      * @throws BoundaryNumberException If race number is equal to zero
      * @return void
      */
-    public function __construct(string $name, string $firstName, int $raceNumber, 
-        \DateTimeInterface $birthDate, string $emailAddress, ?string $photo = null, 
-        ?int $identifier = null)
-    {
+    public function __construct(
+        string $name,
+        string $firstName,
+        int $raceNumber,
+        \DateTimeInterface $birthDate,
+        string $emailAddress,
+        ?string $photo = null,
+        ?int $identifier = null
+    ) {
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $currentDateYear = intval($currentDate->format('Y'));
         $birthDateYear = intval($birthDate->format('Y'));
@@ -92,16 +97,22 @@ class Competitor
         $imageExtensionAcceptedArray = self::IMAGE_EXTENSION_ACCEPTED;
         if (isset($photo) === true && count($imageExtensionAcceptedArray) > 0) {
             $imageExtensionAccepted = '';
-            foreach($imageExtensionAcceptedArray as $imageExtension) {
+            foreach ($imageExtensionAcceptedArray as $imageExtension) {
                 $imageExtensionAccepted .= strtoupper($imageExtension) . '|';
             }
             $imageExtensionAccepted = preg_replace('/\|$/', '', $imageExtensionAccepted);
             if (preg_match('/\.(' . $imageExtensionAccepted . ')$/i', $photo) !== 1) {
                 if (count($imageExtensionAcceptedArray) > 1) {
-                    $imageExtensionAcceptedForException = preg_replace('/\|/', 
-                        ', ', $imageExtensionAccepted);
-                    $imageExtensionAcceptedForException = preg_replace('/\,\s([^\,]+)$/i', 
-                        " and $1", $imageExtensionAcceptedForException);
+                    $imageExtensionAcceptedForException = preg_replace(
+                        '/\|/',
+                        ', ',
+                        $imageExtensionAccepted
+                    );
+                    $imageExtensionAcceptedForException = preg_replace(
+                        '/\,\s([^\,]+)$/i',
+                        " and $1",
+                        $imageExtensionAcceptedForException
+                    );
                 }
                 throw new ImageExtensionException('The competitor photo must have 
                     a conform file extension (only accept 
@@ -122,7 +133,7 @@ class Competitor
      *
      * @return array
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return [
             'identifier' => $this->identifier,
@@ -138,7 +149,7 @@ class Competitor
     /**
      * @return bool
      */
-    public function isSaved() : bool
+    public function isSaved(): bool
     {
         return isset($this->identifier) ? true : false;
     }
@@ -146,17 +157,17 @@ class Competitor
     /**
      * @return int
      */
-    public function getIdentifier() : int
+    public function getIdentifier(): int
     {
         return $this->identifier;
     }
-        
+
     /**
      * @param  int $identifier
      * @throws AlreadySetException If the identifier is already set
      * @return void
      */
-    public function setIdentifier(int $identifier) : void
+    public function setIdentifier(int $identifier): void
     {
         if ($this->isSaved() === true) {
             throw new AlreadySetException('It is not possible to set a competitor identifier already set.');
@@ -167,17 +178,17 @@ class Competitor
     /**
      * @return string
      */
-    public function getName() : string
+    public function getName(): string
     {
         return $this->name;
     }
-    
+
     /**
      * @param  string $name
      * @throws EmptyStringException If parameter name is a empty string
      * @return void
      */
-    public function setName(string $name) : void
+    public function setName(string $name): void
     {
         if (trim($name) == '') {
             throw new EmptyStringException('The competitor name must not be empty.');
@@ -188,17 +199,17 @@ class Competitor
     /**
      * @return string
      */
-    public function getFirstName() : string
+    public function getFirstName(): string
     {
         return $this->firstName;
     }
-    
+
     /**
      * @param  string $firstname
      * @throws EmptyStringException If parameter first name is a empty string
      * @return void
      */
-    public function setFirstName(string $firstName) : void
+    public function setFirstName(string $firstName): void
     {
         if (trim($firstName) == '') {
             throw new EmptyStringException('The competitor firstname must not be empty.');
@@ -209,7 +220,7 @@ class Competitor
     /**
      * @return DateTimeInterface
      */
-    public function getBirthDate() : \DateTimeInterface
+    public function getBirthDate(): \DateTimeInterface
     {
         return $this->birthDate;
     }
@@ -219,7 +230,7 @@ class Competitor
      * @throws BoundaryDateException If parameter birth date is over or equal to max age for racing
      * @return void
      */
-    public function setBirthDate(\DateTimeInterface $birthDate) : void
+    public function setBirthDate(\DateTimeInterface $birthDate): void
     {
         $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
         $currentDateYear = intval($currentDate->format('Y'));
@@ -240,18 +251,18 @@ class Competitor
     /**
      * @return string
      */
-    public function getEmailAddress() : string
+    public function getEmailAddress(): string
     {
         return $this->emailAddress;
     }
-    
+
     /**
      * @param  string $emailAddress
      * @throws EmptyStringException If parameter email address is a empty string
      * @throws EmailAddressSyntaxException If parameter email address symtax is not valid
      * @return void
      */
-    public function setEmailAddress(string $emailAddress) : void
+    public function setEmailAddress(string $emailAddress): void
     {
         if (trim($emailAddress) == '') {
             throw new EmptyStringException('The competitor email address must not be empty.');
@@ -262,22 +273,22 @@ class Competitor
         }
         $this->emailAddress = $emailAddress;
     }
-    
+
     /**
      * @return int
      */
-    public function getRaceNumber() : int
+    public function getRaceNumber(): int
     {
         return $this->raceNumber;
     }
-    
+
     /**
      * @param  int $raceNumber
      * @throws NegativeNumberException If parameter race number is negative
      * @throws BoundaryNumberException If parameter race number is equal to zero
      * @return void
      */
-    public function setRaceNumber(int $raceNumber) : void
+    public function setRaceNumber(int $raceNumber): void
     {
         if ($raceNumber < 0) {
             throw new NegativeNumberException('The competitor race number must not be 
@@ -292,18 +303,18 @@ class Competitor
     /**
      * @return string|null
      */
-    public function getPhoto() : ?string
+    public function getPhoto(): ?string
     {
         return $this->photo;
     }
-    
+
     /**
      * @param  string|null $photo
      * @throws EmptyStringException If parameter photo is a empty string
      * @throws ImageExtensionException If photo file extension is not accepted
      * @return void
      */
-    public function setPhoto(?string $photo) : void
+    public function setPhoto(?string $photo): void
     {
         if (isset($photo) === true && trim($photo) === '') {
             throw new EmptyStringException('The competitor photo must not be 
@@ -312,16 +323,22 @@ class Competitor
         $imageExtensionAcceptedArray = self::IMAGE_EXTENSION_ACCEPTED;
         if (isset($photo) === true && count($imageExtensionAcceptedArray) > 0) {
             $imageExtensionAccepted = '';
-            foreach($imageExtensionAcceptedArray as $imageExtension) {
+            foreach ($imageExtensionAcceptedArray as $imageExtension) {
                 $imageExtensionAccepted .= strtoupper($imageExtension) . '|';
             }
             $imageExtensionAccepted = preg_replace('/\|$/', '', $imageExtensionAccepted);
             if (preg_match('/\.(' . $imageExtensionAccepted . ')$/i', $photo) !== 1) {
                 if (count($imageExtensionAcceptedArray) > 1) {
-                    $imageExtensionAcceptedForException = preg_replace('/\|/', 
-                        ', ', $imageExtensionAccepted);
-                    $imageExtensionAcceptedForException = preg_replace('/\,\s([^\,]+)$/i', 
-                        " and $1", $imageExtensionAcceptedForException);
+                    $imageExtensionAcceptedForException = preg_replace(
+                        '/\|/',
+                        ', ',
+                        $imageExtensionAccepted
+                    );
+                    $imageExtensionAcceptedForException = preg_replace(
+                        '/\,\s([^\,]+)$/i',
+                        " and $1",
+                        $imageExtensionAcceptedForException
+                    );
                 }
                 throw new ImageExtensionException('The competitor photo must have 
                     a conform file extension (only accept 

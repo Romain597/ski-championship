@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Entity;
 
-use App\Exception\NegativeNumberException;
-use App\Exception\BoundaryNumberException;
-use App\Exception\AlreadySetException;
+use App\Entity\Exception\NegativeNumberException;
+use App\Entity\Exception\BoundaryNumberException;
+use App\Entity\Exception\AlreadySetException;
 
 class Passage
 {
@@ -16,7 +16,7 @@ class Passage
     private const MIN_PASSAGE = 1;
     private const MAX_PASSAGE = 2;
     private const MAX_TIME = 90000;
-    
+
     /**
      * Construct and initialize the instance of the object
      *
@@ -27,9 +27,11 @@ class Passage
      * @throws BoundaryNumberException If time and/or passage number are out of boundaries
      * @return void
      */
-    public function __construct(int $passageNumber, float $time, 
-        ?int $identifier = null)
-    {
+    public function __construct(
+        int $passageNumber,
+        float $time,
+        ?int $identifier = null
+    ) {
         if ($passageNumber < 0) {
             throw new NegativeNumberException('The passage parameter must not be 
                 a negative number.');
@@ -57,7 +59,7 @@ class Passage
      *
      * @return array
      */
-    public function toArray() : array
+    public function toArray(): array
     {
         return [
             'identifier' => $this->identifier,
@@ -65,11 +67,11 @@ class Passage
             'time' => $this->time
         ];
     }
-    
+
     /**
      * @return bool
      */
-    public function isSaved() : bool
+    public function isSaved(): bool
     {
         return isset($this->identifier) ? true : false;
     }
@@ -77,39 +79,39 @@ class Passage
     /**
      * @return int
      */
-    public function getIdentifier() : int
+    public function getIdentifier(): int
     {
         return $this->identifier;
     }
-        
+
     /**
      * @param  int $identifier
      * @throws AlreadySetException If the identifier is already set
      * @return void
      */
-    public function setIdentifier(int $identifier) : void
+    public function setIdentifier(int $identifier): void
     {
         if ($this->isSaved() === true) {
             throw new AlreadySetException('It is not possible to set a passage identifier already set.');
         }
         $this->identifier = $identifier;
     }
-    
+
     /**
      * @return int
      */
-    public function getPassageNumber() : int
+    public function getPassageNumber(): int
     {
         return $this->passageNumber;
     }
-    
+
     /**
      * @param  int $passageNumber
      * @throws NegativeNumberException If parameter passage number is negative
      * @throws BoundaryNumberException If parameter passage number is out of boundaries
      * @return void
      */
-    public function setPassageNumber(int $passageNumber) : void
+    public function setPassageNumber(int $passageNumber): void
     {
         if ($passageNumber < 0) {
             throw new NegativeNumberException('The passage parameter must not be 
@@ -122,22 +124,22 @@ class Passage
         }
         $this->passageNumber = $passageNumber;
     }
-    
+
     /**
      * @return float
      */
-    public function getTime() : float
+    public function getTime(): float
     {
         return $this->time;
     }
-    
+
     /**
      * @param  float $time
      * @throws NegativeNumberException If parameter time number is negative
      * @throws BoundaryNumberException If parameter time number is out of boundaries
      * @return void
      */
-    public function setTime(float $time) : void
+    public function setTime(float $time): void
     {
         if ($time < 0) {
             throw new NegativeNumberException('The time parameter must not be 
