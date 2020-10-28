@@ -14,7 +14,7 @@ use App\Entity\Exception\ImageExtensionException;
 
 /**
  * Class Competitor
- * A competitor participe to one event
+ * A competitor participe to one competitor
  */
 class Competitor
 {
@@ -25,9 +25,13 @@ class Competitor
     private int $raceNumber;
     private \DateTimeInterface $birthDate;
     private ?string $photo;
+    private int $contestIdentifier;
+    private int $categoryIdentifier;
+    private int $profileIdentifier;
     private const MAX_AGE_FOR_RACING = 120;
     private const MIN_AGE_FOR_RACING = 18;
     private const IMAGE_EXTENSION_ACCEPTED = ['jpg', 'png'];
+    private const TIME_ZONE = 'Europe/Paris';
 
     /**
      * Construct and initialize the instance of the object
@@ -37,6 +41,9 @@ class Competitor
      * @param  int $raceNumber
      * @param  DateTimeInterface $birthDate
      * @param  string $emailAddress
+     * @param  int $contestIdentifier
+     * @param  int $categoryIdentifier
+     * @param  int $profileIdentifier
      * @param  string|null $photo Optional photo for Competitor
      * @param  int|null $identifier By default null
      * @throws EmptyStringException If name and/or firstname and/or email and/or photo 
@@ -54,10 +61,13 @@ class Competitor
         int $raceNumber,
         \DateTimeInterface $birthDate,
         string $emailAddress,
+        int $contestIdentifier,
+        int $categoryIdentifier,
+        int $profileIdentifier,
         ?string $photo = null,
         ?int $identifier = null
     ) {
-        $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $currentDate = new \DateTime('now', new \DateTimeZone(self::TIME_ZONE));
         $currentDateYear = intval($currentDate->format('Y'));
         $birthDateYear = intval($birthDate->format('Y'));
         $birthDateMaxYear = $currentDateYear - self::MAX_AGE_FOR_RACING;
@@ -125,7 +135,32 @@ class Competitor
         $this->birthDate = $birthDate;
         $this->emailAddress = $emailAddress;
         $this->photo = $photo;
+        $this->contestIdentifier = $contestIdentifier;
+        $this->categoryIdentifier = $categoryIdentifier;
+        $this->profileIdentifier = $profileIdentifier;
         $this->identifier = $identifier;
+    }
+
+    public static function fromState(array $state): Competitor
+    {
+        $identifier = (empty($state['identifier']) === true
+            && is_numeric($state['identifier']) === false)
+            ? null : (int) $state['identifier'];
+        $photo = (empty($state['photo']) === true
+            || strtoupper($state['photo']) === 'NULL')
+            ? null : (string) $state['photo'];
+        return new self(
+            (string) $state['name'],
+            (string) $state['firstName'],
+            (int) $state['raceNumber'],
+            new \DateTimeImmutable($state['birthDate'], new \DateTimeZone(self::TIME_ZONE)),
+            (string) $state['emailAddress'],
+            (int) $state['contestIdentifier'],
+            (int) $state['categoryIdentifier'],
+            (int) $state['profileIdentifier'],
+            $photo,
+            $identifier
+        );
     }
 
     /**
@@ -142,7 +177,10 @@ class Competitor
             'raceNumber' => $this->raceNumber,
             'birthDate' => $this->birthDate,
             'emailAddress' => $this->emailAddress,
-            'photo' => $this->photo
+            'photo' => $this->photo,
+            'contestIdentifier' => $this->contestIdentifier,
+            'categoryIdentifier' => $this->categoryIdentifier,
+            'profileIdentifier' => $this->profileIdentifier
         ];
     }
 
@@ -173,6 +211,14 @@ class Competitor
             throw new AlreadySetException('It is not possible to set a competitor identifier already set.');
         }
         $this->identifier = $identifier;
+    }
+        
+    /**
+     * @return string
+     */
+    public function getTimeZone(): string
+    {
+        return self::TIME_ZONE;
     }
 
     /**
@@ -232,7 +278,7 @@ class Competitor
      */
     public function setBirthDate(\DateTimeInterface $birthDate): void
     {
-        $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $currentDate = new \DateTime('now', new \DateTimeZone(self::TIME_ZONE));
         $currentDateYear = intval($currentDate->format('Y'));
         $birthDateYear = intval($birthDate->format('Y'));
         $birthDateMaxYear = $currentDateYear - self::MAX_AGE_FOR_RACING;

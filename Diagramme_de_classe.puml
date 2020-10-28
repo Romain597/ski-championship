@@ -1,9 +1,9 @@
 @startuml skicuplogitud
-Event "1" *-- "0..N" Competitor : >
-Competitor "1" *-- "0..2" Passage : >
+Contest "1" *-- "0..N" Competitor : >
+Competitor "1" *-- "0..2" Stopwatch : >
 Competitor "0..N" -- "1" Category : <
-Competitor "0..N" -- "1" Profile : <
-Passage "0..2" -- "1" Event : >
+Competitor "0..N" -- "0..1" Profile : <
+Stopwatch "0..2" -- "1" Contest : >
 Category ..|> CategorizationInterface
 Profile ..|> CategorizationInterface
 LoaderData ..|> ExcelInterface
@@ -16,35 +16,35 @@ EmailAddressSyntaxException --|> Exception
 ImageExtensionException --|> Exception
 NegativeNumberException --|> Exception
 PastDateException --|> Exception
-class Event {
+class Contest {
     -identifier : Integer
-    -name : String
-    -location : String
+    -name : String < 150
+    -location : String < 150
     -beginDate : DateTimeInterfce
     -endDate : DateTimeInterface
 }
 class Competitor {
     -identifier : Integer
-    -name : String
-    -firstName : String
+    -name : String < 150
+    -firstName : String < 150
     -raceNumber : Integer
     -birthDate : DateTimeInterface
-    -emailAdress : String
-    -photo : String
+    -emailAdress : String < 100
+    -photo : String|Null < 255
 }
 class Category {
     -identifier : Integer
-    -name : String
-    -descirption : String
+    -name : String < 150
+    -descirption : String|Null < 500
 }
 class Profile {
     -identifier : Integer
-    -name : String
-    -descirption : String
+    -name : String < 150
+    -descirption : String|Null < 500
 }
-class Passage {
+class Stopwatch {
     -identifier : Integer
-    -passageNumber : Integer
+    -turn : Integer
     -time : Float
 }
 class ArchiveResult {

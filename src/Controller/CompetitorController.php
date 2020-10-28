@@ -10,17 +10,17 @@ use Twig\Environment;
 
 class CompetitorController
 {
-    private Environment $_twig;
+    private Environment $twig;
 
     public function __construct(Environment $twig)
     {
-        $this->_twig = $twig;
+        $this->twig = $twig;
     }
 
     public function viewList(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('competitor/index.html.twig'),
+            $this->twig->render('competitor/index.html.twig'),
             Response::HTTP_OK
         );
     }
@@ -28,7 +28,7 @@ class CompetitorController
     public function viewOne(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('competitor/single.html.twig'), 
+            $this->twig->render('competitor/single.html.twig'),
             Response::HTTP_OK
         );
     }
@@ -36,7 +36,7 @@ class CompetitorController
     public function viewAdd(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('competitor/creation.html.twig'), 
+            $this->twig->render('competitor/creation.html.twig'),
             Response::HTTP_OK
         );
     }

@@ -21,44 +21,35 @@ require_once __DIR__ . '/../src/routes.php';
 // Init RequestContext object
 $context = new RequestContext();
 $context->fromRequest($request = Request::createFromGlobals());
-
+//dd($request->server->get('REMOTE_ADDR'));
 $response = new Response();
 
 // Init UrlMatcher object
 $matcher = new UrlMatcher($routes, $context);
 
 try {
-
     // Find the current route
-    $parameters = $matcher->match($context->getPathInfo());
-    $request->attributes->add($parameters);
+    $request->attributes->add(
+        $parameters = $matcher->match($context->getPathInfo())
+    );
 
     if (!isset($parameters['_controller']) === true) {
-        if (isset($parameters['_route']) === true) {
-            $redirect = new RedirectResponse($parameters['_route']);
-            $redirect->send();
-        }
         $redirect = new RedirectResponse('/epreuves/page');
         $redirect->send();
     }
-    
-    if (preg_match('/^[\w\\]+\:\:\w+$/', $parameters['_controller']) !== 1) {
+
+    if (preg_match('/^[\w\\\]+\:\:\w+$/', $parameters['_controller']) !== 1) {
         throw new \Exception('Route controller has not a valid symtax.');
     }
     $controller = preg_split('#\:\:#', $parameters['_controller'], -1, PREG_SPLIT_NO_EMPTY);
     $controller[0] = new $controller[0]($twig);
     $response = call_user_func($controller, $request);
-
 } catch (ResourceNotFoundException $e) {
-
     $errorController = new ErrorController($twig);
     $response = $errorController->notFound($request, $e);
-
 } catch (\Exception $e) {
-
     $errorController = new ErrorController($twig);
     $response = $errorController->internServer($request, $e);
-
+} finally {
+    $response->send();
 }
-
-$response->send();

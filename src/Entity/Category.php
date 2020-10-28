@@ -38,6 +38,21 @@ class Category
         $this->identifier = $identifier;
     }
 
+    public static function fromState(array $state): Category
+    {
+        $identifier = (empty($state['identifier']) === true
+            && is_numeric($state['identifier']) === false)
+            ? null : (int) $state['identifier'];
+        $description = (empty($state['description']) === true
+            || strtoupper($state['description']) === 'NULL')
+            ? null : (string) $state['description'];
+        return new self(
+            (string) $state['name'],
+            $description,
+            $identifier
+        );
+    }
+
     /**
      * Representation of the category object in a array
      *

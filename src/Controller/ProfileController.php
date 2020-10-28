@@ -10,17 +10,17 @@ use Twig\Environment;
 
 class ProfileController
 {
-    private Environment $_twig;
+    private Environment $twig;
 
     public function __construct(Environment $twig)
     {
-        $this->_twig = $twig;
+        $this->twig = $twig;
     }
 
     public function viewList(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('profile/index.html.twig'),
+            $this->twig->render('profile/index.html.twig'),
             Response::HTTP_OK
         );
     }
@@ -28,7 +28,7 @@ class ProfileController
     public function viewOne(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('profile/single.html.twig'), 
+            $this->twig->render('profile/single.html.twig'),
             Response::HTTP_OK
         );
     }
@@ -36,7 +36,7 @@ class ProfileController
     public function viewAdd(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('profile/creation.html.twig'), 
+            $this->twig->render('profile/creation.html.twig'),
             Response::HTTP_OK
         );
     }

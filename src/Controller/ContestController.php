@@ -8,23 +8,21 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 
-class EventController
+class ContestController
 {
-//https://github.com/FriendsOfPHP/PHP-CS-Fixer/blob/master/src/Fixer/ClassNotation/OrderedClassElementsFixer.php
-    private Environment $_twig;
+    private Environment $twig;
 
     public function __construct(Environment $twig)
     {
-        $this->_twig = $twig;
+        $this->twig = $twig;
     }
 
     public function viewList(Request $request): Response
     {
         //$page = $request->attributes->get('page', 0);
         //extract($parameters);
-        //return new Response('event_list page ' . $page);
         return new Response(
-            $this->_twig->render('event/index.html.twig'),
+            $this->twig->render('contest/index.html.twig'),
             Response::HTTP_OK
         );
     }
@@ -32,7 +30,7 @@ class EventController
     public function viewOne(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('event/single.html.twig'), 
+            $this->twig->render('contest/single.html.twig'),
             Response::HTTP_OK
         );
     }
@@ -40,7 +38,7 @@ class EventController
     public function viewAdd(Request $request): Response
     {
         return new Response(
-            $this->_twig->render('event/creation.html.twig'), 
+            $this->twig->render('contest/creation.html.twig'),
             Response::HTTP_OK
         );
     }

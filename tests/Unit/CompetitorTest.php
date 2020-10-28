@@ -13,7 +13,7 @@ use App\Entity\Exception\AlreadySetException;
 use App\Entity\Exception\BoundaryNumberException;
 use App\Entity\Exception\ImageExtensionException;
 
-function createCompetitorObject(array $eventDataParameter = []): Competitor
+function createCompetitorObject(array $competitorDataParameter = []): Competitor
 {
     $dateObject = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
     $dateObject->modify('-19 years');
@@ -248,7 +248,7 @@ it(
 )->throws(ImageExtensionException::class);
 
 it(
-    'should throw a type error for instantiate a event with bad types parameters',
+    'should throw a type error for instantiate a competitor with bad types parameters',
     function () {
 
         $dateObject = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
@@ -419,5 +419,4 @@ it('should throw a identifier already set exception', function () {
     $newCompetitor = createCompetitorObject();
 
     $newCompetitor->setIdentifier(2);
-    
 })->throws(AlreadySetException::class);

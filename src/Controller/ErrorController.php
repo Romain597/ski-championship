@@ -11,30 +11,30 @@ use Twig\Environment;
 class ErrorController
 {
 
-    private Environment $_twig;
+    private Environment $twig;
 
     public function __construct(Environment $twig)
     {
-        $this->_twig = $twig;
+        $this->twig = $twig;
     }
 
     public function notFound(Request $request, \Throwable $throwable): Response
     {
-        return new Response($this->_twig->render('error/404.html.twig'), Response::HTTP_NOT_FOUND);
+        return new Response($this->twig->render('http_error/404.html.twig'), Response::HTTP_NOT_FOUND);
     }
 
     public function notAllowed(Request $request, \Throwable $throwable): Response
     {
-        return new Response($this->_twig->render('error/405.html.twig'), Response::HTTP_METHOD_NOT_ALLOWED);
+        return new Response($this->twig->render('http_error/405.html.twig'), Response::HTTP_METHOD_NOT_ALLOWED);
     }
 
     public function byDefault(Request $request, \Throwable $throwable): Response
     {
-        return new Response($this->_twig->render('error/index.html.twig'), Response::HTTP_INTERNAL_SERVER_ERROR);
+        return new Response($this->twig->render('http_error/index.html.twig'), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 
     public function internServer(Request $request, \Throwable $throwable): Response
     {
-        return new Response($this->_twig->render('error/500.html.twig'), Response::HTTP_INTERNAL_SERVER_ERROR);
+        return new Response($this->twig->render('http_error/500.html.twig'), Response::HTTP_INTERNAL_SERVER_ERROR);
     }
 }

@@ -7,25 +7,22 @@ namespace App;
 use Symfony\Component\Routing\Route;
 use Symfony\Component\Routing\RouteCollection;
 
-$routes = new RouteCollection;
+$routes = new RouteCollection();
 
 // Redirection of index
 $routes->add(
-    'index', 
+    'index',
     new Route(
-        '/',
-        [
-            '_route' => 'event_list'
-        ]
+        '/'
     )
 );
-// List of event
+// List of contest
 $routes->add(
-    'event_list', 
+    'contest_list',
     new Route(
         '/epreuves/page/{page}',
         [
-            '_controller' => 'App\Controller\EventController::viewList',
+            '_controller' => 'App\Controller\ContestController::viewList',
             'page' => 1
         ],
         [
@@ -33,28 +30,28 @@ $routes->add(
         ]
     )
 );
-// View a event
+// View a contest
 $routes->add(
-    'event_view', 
+    'contest_view',
     new Route(
-        '/epreuve/{event}/{slug}',
+        '/epreuve/{contest}/{slug}',
         [
-            '_controller' => 'App\Controller\EventController::viewOne',
+            '_controller' => 'App\Controller\ContestController::viewOne',
             'slug' => ''
         ],
         [
-            'event' => '\d+',
+            'contest' => '\d+',
             'slug' => '[\w\-]*'
         ]
     )
 );
-// Add a event
+// Add a contest
 $routes->add(
-    'event_add', 
+    'contest_add',
     new Route(
         '/epreuve/ajout',
         [
-            '_controller' => 'App\Controller\EventController::viewAdd',
+            '_controller' => 'App\Controller\ContestController::viewAdd',
             'page' => 1
         ],
         [
@@ -62,17 +59,17 @@ $routes->add(
         ]
     )
 );
-// event list
+// Modify a contest
 $routes->add(
-    'event_modify', 
+    'contest_modify',
     new Route(
-        '/epreuve/{event}/modification/{slug}',
+        '/epreuve/{contest}/modification/{slug}',
         [
-            '_controller' => 'App\Controller\EventController::viewModify',
+            '_controller' => 'App\Controller\ContestController::viewModify',
             'slug' => ''
         ],
         [
-            'event' => '\d+',
+            'contest' => '\d+',
             'slug' => '[\w\-]*'
         ]
     )

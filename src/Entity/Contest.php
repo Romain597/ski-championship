@@ -9,19 +9,19 @@ use App\Entity\Exception\BoundaryDateException;
 use App\Entity\Exception\AlreadySetException;
 use App\Entity\Exception\PastDateException;
 
-
 // InvalidArgumentException et BadMethodCallException
 /**
- * Class Event
- * A event every years   
+ * Class Contest
+ * A contest every years   
  */
-class Event
+class Contest
 {
     private ?int $identifier;
     private string $name;
     private string $location;
     private \DateTimeInterface $beginAt;
     private \DateTimeInterface $endAt;
+    private const TIME_ZONE = 'Europe/Paris';
 
     /**
      * Construct and initialize the instance of the object
@@ -44,20 +44,20 @@ class Event
         ?int $identifier = null
     ) {
         if (trim($name) == '') {
-            throw new EmptyStringException('The event name must not be empty.');
+            throw new EmptyStringException('The contest name must not be empty.');
         }
         if (trim($location) == '') {
-            throw new EmptyStringException('The event location must not be empty.');
+            throw new EmptyStringException('The contest location must not be empty.');
         }
-        $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $currentDate = new \DateTime('now', new \DateTimeZone(self::TIME_ZONE));
         if ($beginAt < $currentDate) {
-            throw new PastDateException('The event begin date must not be in the past.');
+            throw new PastDateException('The contest begin date must not be in the past.');
         }
         if ($endAt < $currentDate) {
-            throw new PastDateException('The event end date must not be in the past.');
+            throw new PastDateException('The contest end date must not be in the past.');
         }
         if ($endAt <= $beginAt) {
-            throw new BoundaryDateException('The event end date must not be inferior or 
+            throw new BoundaryDateException('The contest end date must not be inferior or 
                 equal to the begin date.');
         }
         $this->name = $name;
@@ -67,8 +67,22 @@ class Event
         $this->identifier = $identifier;
     }
 
+    public static function fromState(array $state): Contest
+    {
+        $identifier = (empty($state['identifier']) === true
+            && is_numeric($state['identifier']) === false)
+            ? null : (int) $state['identifier'];
+        return new self(
+            (string) $state['name'],
+            (string) $state['location'],
+            new \DateTimeImmutable($state['beginAt'], new \DateTimeZone(self::TIME_ZONE)),
+            new \DateTimeImmutable($state['endAt'], new \DateTimeZone(self::TIME_ZONE)),
+            $identifier
+        );
+    }
+
     /**
-     * Representation of the event object in a array
+     * Representation of the contest object in a array
      *
      * @return array
      */
@@ -107,9 +121,17 @@ class Event
     public function setIdentifier(int $identifier): void
     {
         if ($this->isSaved() === true) {
-            throw new AlreadySetException('It is not possible to set a event identifier already set.');
+            throw new AlreadySetException('It is not possible to set a contest identifier already set.');
         }
         $this->identifier = $identifier;
+    }
+
+    /**
+     * @return string
+     */
+    public function getTimeZone(): string
+    {
+        return self::TIME_ZONE;
     }
 
     /**
@@ -128,7 +150,7 @@ class Event
     public function setName(string $name): void
     {
         if (trim($name) == '') {
-            throw new EmptyStringException('The event name must not be empty.');
+            throw new EmptyStringException('The contest name must not be empty.');
         }
         $this->name = $name;
     }
@@ -149,7 +171,7 @@ class Event
     public function setLocation(string $location): void
     {
         if (trim($location) == '') {
-            throw new EmptyStringException('The event location must not be empty.');
+            throw new EmptyStringException('The contest location must not be empty.');
         }
         $this->location = $location;
     }
@@ -169,9 +191,9 @@ class Event
      */
     public function setBeginDate(\DateTimeInterface $beginAt): void
     {
-        $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $currentDate = new \DateTime('now', new \DateTimeZone(self::TIME_ZONE));
         if ($beginAt < $currentDate) {
-            throw new PastDateException('The event begin date must not be in the past.');
+            throw new PastDateException('The contest begin date must not be in the past.');
         }
         $this->beginAt = $beginAt;
     }
@@ -192,12 +214,12 @@ class Event
      */
     public function setEndDate(\DateTimeInterface $endAt): void
     {
-        $currentDate = new \DateTime('now', new \DateTimeZone('Europe/Paris'));
+        $currentDate = new \DateTime('now', new \DateTimeZone(self::TIME_ZONE));
         if ($endAt < $currentDate) {
-            throw new PastDateException('The event end date must not be in the past.');
+            throw new PastDateException('The contest end date must not be in the past.');
         }
         if ($endAt <= $this->beginAt) {
-            throw new BoundaryDateException('The event end date must not be inferior or 
+            throw new BoundaryDateException('The contest end date must not be inferior or 
                 equal to the begin date.');
         }
         $this->beginAt = $endAt;
