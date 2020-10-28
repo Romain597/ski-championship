@@ -7,7 +7,7 @@ namespace App\Parser;
 use App\Entity\Stopwatch;
 use App\Repository\CompetitorRepository;
 
-class StopwatchParser implements ParserInterface, CsvParserInterface
+class StopwatchParser implements ImportedFileParserInterface, ExportedFileParserInterface
 {
     private array $dataToTransform;
     private const FIELDS_SEARCH = ['dossard', 'passage_1', 'passage_2'];
@@ -21,7 +21,7 @@ class StopwatchParser implements ParserInterface, CsvParserInterface
         $this->dataToTransform = $dataToTransform;
     }
 
-    private function isLineData($line): bool
+    private function isNotEmptyLine($line): bool
     {
         if (empty($line) === true) {
             return false;
@@ -37,24 +37,43 @@ class StopwatchParser implements ParserInterface, CsvParserInterface
         return true;
     }
 
+    private function isValidFileLine(array $line): bool
+    {
+        return !empty($line) === true && count($line) === count(self::FIELDS) && $this->isNotEmptyLine($line) === true;
+    }
+
+    private function getFieldsKeyInFile(array $line): array
+    {
+        if ($this->isValidFileLine($line) === false) {
+            throw new \Exception("Les champs du fichier ne sont pas valides.");
+        }
+        $fieldsKey = [];
+        //$inputDataCharset = $this->getDataEncoding($line[0]);
+        $outputDataCharset = $this->getDataEncoding(self::FIELDS_SEARCH[0]);
+        foreach ($line as $key => $field) {
+            //$field = mb_strtolower($field, 'Windows-1252');
+            $field = $this->convertDataCharset($field, $outputDataCharset);
+            $field = mb_strtolower($field, $outputDataCharset);
+            if (in_array($field, self::FIELDS_SEARCH) === true) {
+                $fieldsKey[$field] = $key;
+            }
+        }
+        if (count($fieldsKey) != count(self::FIELDS_SEARCH)) {
+            throw new \Exception("Les champs du fichier ne corespondent pas aux champs attendus.");
+        }
+    }
+
     public function retrieveObjects(int $contestIdentifier, CompetitorRepository $competitorRepository): array
     {
         $fieldsKey = [];
         $objectList = [];
-        foreach ($this->dataToTransform as $i => $line) {
-            if (empty($line) === true || count($line) !== count(self::FIELDS) || $this->isLineData($line) === false) {
+        foreach ($this->dataToTransform as $line) {
+            //if (empty($line) === true || count($line) !== count(self::FIELDS) || $this->isNotEmptyLine($line) === false) {
+            if ($this->isValidFileLine($line) === false) {
                 continue;
             }
             if (empty($fieldsKey) === true) {
-                foreach ($line as $key => $field) {
-                    $field = mb_strtolower($field, 'Windows-1252');
-                    if (in_array($field, self::FIELDS_SEARCH) === true) {
-                        $fieldsKey[$field] = $key;
-                    }
-                }
-                if (count($fieldsKey) != count(self::FIELDS_SEARCH)) {
-                    throw new \Exception("Les champs du fichier ne corespondent pas aux champs attendus.");
-                }
+                $fieldsKey = $this->getFieldsKeyInFile($line);
             } else {
                 $raceNumber = $line[$fieldsKey['dossard']];
                 $competitor = $competitorRepository->findByRaceNumber(intval($raceNumber), $contestIdentifier);
