@@ -61,6 +61,25 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
         if (count($fieldsKey) != count(self::FIELDS_SEARCH)) {
             throw new \Exception("Les champs du fichier ne corespondent pas aux champs attendus.");
         }
+        return $fieldsKey;
+    }
+
+    private function getFormatStopwatchTime(string $time): string
+    {
+        $time = str_replace(',', '.', $time);
+        if (preg_match('/\d{3,9}(\.\d{1,2})?/', $time) !== 1) {
+            throw new \Exception("Le temps de passage $time n'est pas au bon format.");
+        }
+        return $time;
+    }
+
+    private function buildObject(int $turn, string $stopwatchTime, int $competitorIdentifier, int $contestIdentifier): Stopwatch
+    {
+        return Stopwatch::fromState([
+            'turn' => $turn,
+            'time' => $stopwatchTime,
+            'competitorIdentifier' => $competitorIdentifier,
+            'contestIdentifier' => $contestIdentifier]);
     }
 
     public function retrieveObjects(int $contestIdentifier, CompetitorRepository $competitorRepository): array
@@ -68,7 +87,6 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
         $fieldsKey = [];
         $objectList = [];
         foreach ($this->dataToTransform as $line) {
-            //if (empty($line) === true || count($line) !== count(self::FIELDS) || $this->isNotEmptyLine($line) === false) {
             if ($this->isValidFileLine($line) === false) {
                 continue;
             }
@@ -80,24 +98,11 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
                 if ($competitor == null) {
                     throw new \Exception("Le compétiteur n'a pas été trouvé.");
                 }
-                $stopwatchTime1 = str_replace(',', '.', $line[$fieldsKey['passage_1']]);
-                if (preg_match('/\d{3,9}(\.\d{1,2})?/', $stopwatchTime1) !== 1) {
-                    throw new \Exception("Le temps de passage n°1 n'est pas au bon format.");
-                }
-                $stopwatchTime2 = str_replace(',', '.', $line[$fieldsKey['passage_2']]);
-                if (preg_match('/\d{3,9}(\.\d{1,2})?/', $stopwatchTime2) !== 1) {
-                    throw new \Exception("Le temps de passage n°2 n'est pas au bon format.");
-                }
-                $objectList[] = Stopwatch::fromState([
-                    'turn' => 1,
-                    'time' => $stopwatchTime1,
-                    'competitorIdentifier' => $competitor->getIdentifier(),
-                    'contestIdentifier' => $contestIdentifier]);
-                $objectList[] = Stopwatch::fromState([
-                    'turn' => 2,
-                    'time' => $stopwatchTime2,
-                    'competitorIdentifier' => $competitor->getIdentifier(),
-                    'contestIdentifier' => $contestIdentifier]);
+                $stopwatchTime1 = $this->getFormatStopwatchTime($line[$fieldsKey['passage_1']]);
+                $stopwatchTime2 = $this->getFormatStopwatchTime($line[$fieldsKey['passage_2']]);
+                $competitorIdentifier = $competitor->getIdentifier();
+                $objectList[] = $this->buildObject(1, $stopwatchTime1, $competitorIdentifier, $contestIdentifier);
+                $objectList[] = $this->buildObject(2, $stopwatchTime2, $competitorIdentifier, $contestIdentifier);
             }
         }
         return $objectList;
@@ -122,23 +127,23 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
         return $result;
     }
 
-    private function getPropertyNameByField(string $field): ?string
+    private function getColumnNameByField(string $field): ?string
     {
         switch ($field) {
             case 'Dossard':
-                return 'raceNumber';
+                return 'race_number';
             break;
             case 'Nom':
                 return 'name';
             break;
             case 'Prénom':
-                return 'firstName';
+                return 'first_name';
             break;
             case 'Passage_1':
-                return 'time';
+                return 'time_1';
             break;
             case 'Passage_2':
-                return 'time';
+                return 'time_2';
             break;
         }
         return null;
@@ -147,13 +152,15 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
     private function getFileLine(array $data, string $outputDataCharset): array
     {
         $line = [];
-        //if ($data instanceof Stopwatch) { $objectInArray = $data->toArray(); }
         foreach (self::FIELDS as $field) {
-            $propertyName = $this->getPropertyNameByField($field);
-            if ($propertyName == null) {
+            $columnName = $this->getColumnNameByField($field);
+            if ($columnName == null) {
                 throw new \Exception("Le champs indiqué n'est pas reconnu.");
             }
-            $value = $data[$propertyName];
+            $value = null;
+            if (isset($data[$columnName]) === true) {
+                $value = $data[$columnName];
+            }
             if (is_string($value) === true && !is_numeric($value) === true) {
                 $value = $this->convertDataCharset($value, $outputDataCharset);
             }
