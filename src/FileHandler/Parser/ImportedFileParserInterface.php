@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\Parser;
+namespace App\FileHandler\Parser;
 
 use App\Repository\CompetitorRepository;
 

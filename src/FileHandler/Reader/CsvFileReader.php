@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\File\Reader;
 
-use App\File\Loader\CsvFileLoader;
+use App\FileHandler\Loader\CsvFileLoader;
 
 class CsvFileReader implements FileReaderInterface
 {
@@ -33,7 +33,7 @@ class CsvFileReader implements FileReaderInterface
             \SplFileObject::DROP_NEW_LINE
         );
         foreach ($fileHandler as $line) {
-            if ($line[0] === '' || $line[0] === null) {
+            if ($line[0] === '' || is_null($line[0]) === true) { //$line[0] === null
                 continue;
             }
             $returnData[] = $line;

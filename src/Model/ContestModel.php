@@ -13,6 +13,7 @@ class ContestModel implements ModelInterface
     public function __construct(GatewayInterface $gateway)
     {
         $this->gateway = $gateway;
+        $this->gateway->createConnection();
     }
 
     public function save(array $dataContest): void
@@ -27,7 +28,7 @@ class ContestModel implements ModelInterface
         if ($this->checkDuplicate($requestData) === true) {
             throw new \Exception('There is already a contest corresponding to this data.');
         }
-        if ($dataContest['identifier'] !== null) {
+        if (is_null($dataContest['identifier']) === true) {
             $this->insert($requestData);
         } else {
             $updateData = [];
@@ -50,26 +51,30 @@ class ContestModel implements ModelInterface
 
     private function checkDuplicate(array $dataToCheck): bool
     {
-        $request = 'SELECT COUNT(c.*) AS duplicate FROM contest c WHERE
+        $request = 'SELECT COUNT(*) AS duplicate FROM contest c WHERE
             c.name = ' . $dataToCheck['name'] . '
             AND c.location = ' . $dataToCheck['location'] . '
             AND DATE_FORMAT(c.begin_date,"%Y-%m-%d %H:%i:%s") = ' . $dataToCheck['begin_date'] . '
             AND DATE_FORMAT(c.end_date,"%Y-%m-%d %H:%i:%s") = ' . $dataToCheck['end_date'] . ';';
         $result = $this->gateway->query($request);
-        $duplicate = $result->fetch(\PDO::FETCH_ASSOC);
-        return intval($duplicate['duplicate']) === 0 ? false : true;
+        $duplicate = $result->fetch(\PDO::FETCH_COLUMN);
+        return intval($duplicate) === 0 ? false : true;
     }
 
     private function checkModification(int $id, array $dataToCheck): array
     {
         $request = 'SELECT 
-            IF(c.name=' . $dataToCheck['name'] . ',0,1) AS check_name,
-            IF(c.location=' . $dataToCheck['location'] . ',0,1) AS check_location,
-            IF(DATE_FORMAT(c.begin_date,"%Y-%m-%d %H:%i:%s")=' . $dataToCheck['begin_date'] . ',0,1) AS check_begin_date,
-            IF(DATE_FORMAT(c.end_date,"%Y-%m-%d %H:%i:%s")=' . $dataToCheck['end_date'] . ',0,1) AS check_end_date
+            IF(c.name = ' . $dataToCheck['name'] . ',0,1) AS check_name,
+            IF(c.location = ' . $dataToCheck['location'] . ',0,1) AS check_location,
+            IF(DATE_FORMAT(c.begin_date,"%Y-%m-%d %H:%i:%s") = ' . $dataToCheck['begin_date'] . ',0,1) AS check_begin_date,
+            IF(DATE_FORMAT(c.end_date,"%Y-%m-%d %H:%i:%s") = ' . $dataToCheck['end_date'] . ',0,1) AS check_end_date
             FROM contest c WHERE c.identifier = ' . $id . ';';
         $result = $this->gateway->query($request);
-        return $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(\PDO::FETCH_ASSOC);
+        if (empty($data) === true) {
+            throw new \Exception('The checking of data modification in the database has failed.');
+        }
+        return $data;
     }
 
     private function update(int $id, array $dataToUpdate): void
@@ -86,7 +91,7 @@ class ContestModel implements ModelInterface
     private function insert(array $dataToInsert): void
     {
         $request = 'INSERT INTO contest(identifier, name, location, begin_date, end_date)
-            VALUES (,' . $dataToInsert['name'] . ',' . $dataToInsert['location'] . ', '
+            VALUES (NULL,' . $dataToInsert['name'] . ',' . $dataToInsert['location'] . ', '
             . $dataToInsert['begin_date'] . ',' . $dataToInsert['end_date'] . ');';
         $this->gateway->query($request);
     }
@@ -98,7 +103,7 @@ class ContestModel implements ModelInterface
             $conditionString = '';
             for ($i = 0; $i < count($conditions); $i++) {
                 foreach ($conditions[$i] as $field => $fieldValue) {
-                    if (stripos($fieldValue, 'At') != false) {
+                    if (stripos($fieldValue, 'At') !== false) {
                         $field = 'DATE_FORMAT(' . str_replace('At', '_date', $field) . ',"%Y-%m-%d %H:%i:%s")';
                     }
                     $conditionString .= $field . ' = "' . $fieldValue . '" AND ';
@@ -118,10 +123,11 @@ class ContestModel implements ModelInterface
                 $request .= ' ' . $filterString;
             }
         } else {
-            $request .= ' ORDER BY identifier ASC';
+            $request .= ' ORDER BY c.identifier ASC';
         }
         $request .= ';';
         $result = $this->gateway->query($request);
-        return $result->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $result->fetchAll(\PDO::FETCH_ASSOC);
+        return empty($data) === true ? [] : $data;
     }
 }

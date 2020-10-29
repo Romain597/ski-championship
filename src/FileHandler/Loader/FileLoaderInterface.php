@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\File\Loader;
+namespace App\FileHandler\Loader;
 
 interface FileLoaderInterface
 {

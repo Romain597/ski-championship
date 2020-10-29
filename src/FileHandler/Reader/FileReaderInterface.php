@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\File\Reader;
+namespace App\FileHandler\Reader;
 
 interface FileReaderInterface
 {

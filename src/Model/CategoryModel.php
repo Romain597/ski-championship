@@ -19,11 +19,11 @@ class ContestModel implements ModelInterface
     {
         $requestData = [];
         $requestData['name'] = '"' . $dataCategory['name'] . '"';
-        $requestData['description'] = $dataCategory['description'] != null ? '"' . $dataCategory['description'] . '"' : 'NULL';
+        $requestData['description'] = is_null($dataCategory['description']) === true ? '"' . $dataCategory['description'] . '"' : 'NULL'; //$dataCategory['description'] != null
         if ($this->checkDuplicate($requestData) === true) {
             throw new \Exception('There is already a category corresponding to this data.');
         }
-        if ($dataCategory['identifier'] !== null) {
+        if (is_null($dataCategory['identifier']) === true) {
             $this->insert($requestData);
         } else {
             $updateData = [];
@@ -46,23 +46,27 @@ class ContestModel implements ModelInterface
 
     private function checkDuplicate(array $dataToCheck): bool
     {
-        $request = 'SELECT COUNT(c.*) AS duplicate FROM category c WHERE
+        $request = 'SELECT COUNT(*) AS duplicate FROM category c WHERE
             c.name = ' . $dataToCheck['name'];
         $result = $this->gateway->query($request);
-        $duplicate = $result->fetch(\PDO::FETCH_ASSOC);
-        return intval($duplicate['duplicate']) === 0 ? false : true;
+        $duplicate = $result->fetch(\PDO::FETCH_COLUMN);
+        return intval($duplicate) === 0 ? false : true;
     }
 
     private function checkModification(int $id, array $dataToCheck): array
     {
         $request = 'SELECT 
-            IF(c.name=' . $dataToCheck['name'] . ',0,1) AS check_name,
+            IF(c.name = ' . $dataToCheck['name'] . ',0,1) AS check_name,
             IF(c.description ';
         $request .= $dataToCheck['description'] == 'NULL' ? 'IS ' : '= ';
         $request .= $dataToCheck['description'] . ',0,1) AS check_description,
             FROM category c WHERE c.identifier = ' . $id . ';';
         $result = $this->gateway->query($request);
-        return $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(\PDO::FETCH_ASSOC);
+        if (empty($data) === true) {
+            throw new \Exception('The checking of data modification in the database has failed.');
+        }
+        return $data;
     }
 
     private function update(int $id, array $dataToUpdate): void
@@ -79,7 +83,7 @@ class ContestModel implements ModelInterface
     private function insert(array $dataToInsert): void
     {
         $request = 'INSERT INTO category(identifier, name, description)
-            VALUES (,' . $dataToInsert['name'] . ',' . $dataToInsert['description'] . ');';
+            VALUES (NULL,' . $dataToInsert['name'] . ',' . $dataToInsert['description'] . ');';
         $this->gateway->query($request);
     }
 
@@ -89,7 +93,7 @@ class ContestModel implements ModelInterface
         if (!empty($conditions) === true) {
             $conditionString = '';
             foreach ($conditions as $field => $fieldValue) {
-                if (stripos($fieldValue, 'NULL') != false) {
+                if (stripos($fieldValue, 'NULL') !== false) {
                     $conditionString .= $field . ' IS ' . $fieldValue . ' AND ';
                 } else {
                     $conditionString .= $field . ' = "' . $fieldValue . '" AND ';
@@ -109,10 +113,11 @@ class ContestModel implements ModelInterface
                 $request .= ' ' . $filterString;
             }
         } else {
-            $request .= ' ORDER BY identifier ASC';
+            $request .= ' ORDER BY c.identifier ASC';
         }
         $request .= ';';
         $result = $this->gateway->query($request);
-        return $result->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $result->fetchAll(\PDO::FETCH_ASSOC);
+        return empty($data) === true ? [] : $data;
     }
 }

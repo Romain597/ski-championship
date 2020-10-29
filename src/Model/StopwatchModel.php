@@ -25,7 +25,7 @@ class ContestModel implements ModelInterface
         if ($this->checkDuplicate($requestData) === true) {
             throw new \Exception('There is already a stopwatch corresponding to this data.');
         }
-        if ($dataStopwatch['identifier'] !== null) {
+        if (is_null($dataStopwatch['identifier']) === true) {
             $this->insert($requestData);
         } else {
             $updateData = [];
@@ -48,24 +48,28 @@ class ContestModel implements ModelInterface
 
     private function checkDuplicate(array $dataToCheck): bool
     {
-        $request = 'SELECT COUNT(s.*) AS duplicate FROM stopwatch s WHERE
+        $request = 'SELECT COUNT(*) AS duplicate FROM stopwatch s WHERE
             s.turn = ' . $dataToCheck['turn'] . '
-            AND s.time = ' . $dataToCheck['time'] . '
             AND s.contest_identifier = ' . $dataToCheck['contest_identifier'] . '
             AND s.competitor_identifier = ' . $dataToCheck['competitor_identifier'] . ';';
+            //AND s.time = ' . $dataToCheck['time'] . '
         $result = $this->gateway->query($request);
-        $duplicate = $result->fetch(\PDO::FETCH_ASSOC);
-        return intval($duplicate['duplicate']) === 0 ? false : true;
+        $duplicate = $result->fetch(\PDO::FETCH_COLUMN);
+        return intval($duplicate) === 0 ? false : true;
     }
 
     private function checkModification(int $id, array $dataToCheck): array
     {
         $request = 'SELECT 
-            IF(s.turn=' . $dataToCheck['turn'] . ',0,1) AS check_turn,
-            IF(s.time=' . $dataToCheck['time'] . ',0,1) AS check_time,
+            IF(s.turn = ' . $dataToCheck['turn'] . ',0,1) AS check_turn,
+            IF(s.time = ' . $dataToCheck['time'] . ',0,1) AS check_time,
             FROM stopwatch s WHERE s.identifier = ' . $id . ';';
         $result = $this->gateway->query($request);
-        return $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(\PDO::FETCH_ASSOC);
+        if (empty($data) === true) {
+            throw new \Exception('The checking of data modification in the database has failed.');
+        }
+        return $data;
     }
 
     private function update(int $id, array $dataToUpdate): void
@@ -82,7 +86,7 @@ class ContestModel implements ModelInterface
     private function insert(array $dataToInsert): void
     {
         $request = 'INSERT INTO stopwatch(identifier, contest_identifier, competitor_identifier, turn, time)
-            VALUES (,' . $dataToInsert['contest_identifier'] . ',' . $dataToInsert['competitor_identifier'] . ',' . $dataToInsert['turn'] . ',' . $dataToInsert['time'] . ');';
+            VALUES (NULL,' . $dataToInsert['contest_identifier'] . ',' . $dataToInsert['competitor_identifier'] . ',' . $dataToInsert['turn'] . ',' . $dataToInsert['time'] . ');';
         $this->gateway->query($request);
     }
 
@@ -92,7 +96,7 @@ class ContestModel implements ModelInterface
         if (!empty($conditions) === true) {
             $conditionString = '';
             foreach ($conditions as $field => $fieldValue) {
-                if (stripos($fieldValue, 'NULL') != false) {
+                if (stripos($fieldValue, 'NULL') !== false) {
                     $conditionString .= $field . ' IS ' . $fieldValue . ' AND ';
                 } else {
                     $conditionString .= $field . ' = "' . $fieldValue . '" AND ';
@@ -112,10 +116,11 @@ class ContestModel implements ModelInterface
                 $request .= ' ' . $filterString;
             }
         } else {
-            $request .= ' ORDER BY identifier ASC';
+            $request .= ' ORDER BY s.identifier ASC';
         }
         $request .= ';';
         $result = $this->gateway->query($request);
-        return $result->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $result->fetchAll(\PDO::FETCH_ASSOC);
+        return empty($data) === true ? [] : $data;
     }
 }

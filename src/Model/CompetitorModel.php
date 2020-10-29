@@ -20,18 +20,18 @@ class ContestModel implements ModelInterface
         $requestData = [];
         $requestData['contest_identifier'] = $dataCompetitor['contestIdentifier'];
         $requestData['category_identifier'] = $dataCompetitor['categoryIdentifier'];
-        $requestData['profile_identifier'] = $dataCompetitor['profileIdentifier'];
+        $requestData['profile_identifier'] = is_null($dataCompetitor['profileIdentifier']) === true ? $dataCompetitor['profileIdentifier'] : 'NULL';
         $requestData['name'] = '"' . $dataCompetitor['name'] . '"';
         $requestData['first_name'] = '"' . $dataCompetitor['firstName'] . '"';
         $requestData['race_number'] = $dataCompetitor['raceNumber'];
         $requestData['email_address'] = '"' . $dataCompetitor['emailAddress'] . '"';
         $birthDate = $dataCompetitor['birthDate']->setTimezone(new \DateTimeZone('UTC'));
         $requestData['birth_date'] = '"' . $birthDate->format('Y-m-d H:i:s') . '"';
-        $requestData['photo'] = $dataCompetitor['photo'] != null ? '"' . $dataCompetitor['photo'] . '"' : 'NULL';
+        $requestData['photo'] = is_null($dataCompetitor['photo']) === true ? '"' . $dataCompetitor['photo'] . '"' : 'NULL'; //$dataCompetitor['photo'] != null
         if ($this->checkDuplicate($requestData) === true) {
             throw new \Exception('There is already a competitor corresponding to this data.');
         }
-        if ($dataCompetitor['identifier'] !== null) {
+        if (is_null($dataCompetitor['identifier']) === true) {
             $this->insert($requestData);
         } else {
             $updateData = [];
@@ -54,33 +54,42 @@ class ContestModel implements ModelInterface
 
     private function checkDuplicate(array $dataToCheck): bool
     {
-        $request = 'SELECT COUNT(c.*) AS duplicate FROM competitor c WHERE
+        $request = 'SELECT COUNT(*) AS duplicate FROM competitor c WHERE
             c.name = ' . $dataToCheck['name'] . '
             AND c.first_name = ' . $dataToCheck['first_name'] . '
-            AND c.race_number = ' . $dataToCheck['race_number'] . '
             AND c.email_address = ' . $dataToCheck['email_address'] . '
             AND DATE_FORMAT(c.birth_date,"%Y-%m-%d %H:%i:%s") = ' . $dataToCheck['birth_date'] . '
-            AND s.contest_identifier = ' . $dataToCheck['contest_identifier'] . '
-            AND s.category_identifier = ' . $dataToCheck['category_identifier'] . ';';
+            AND c.contest_identifier = ' . $dataToCheck['contest_identifier'] . ';';
+            //AND c.category_identifier = ' . $dataToCheck['category_identifier'] . ';';
+            //AND c.race_number = ' . $dataToCheck['race_number'] . '
         $result = $this->gateway->query($request);
-        $duplicate = $result->fetch(\PDO::FETCH_ASSOC);
-        return intval($duplicate['duplicate']) === 0 ? false : true;
+        $duplicate = $result->fetch(\PDO::FETCH_COLUMN);
+        return intval($duplicate) === 0 ? false : true;
     }
 
     private function checkModification(int $id, array $dataToCheck): array
     {
         $request = 'SELECT 
-            IF(c.name=' . $dataToCheck['name'] . ',0,1) AS check_name,
-            IF(c.first_name=' . $dataToCheck['first_name'] . ',0,1) AS check_first_name,
-            IF(c.race_number= ' . $dataToCheck['race_number'] . ',0,1) AS check_race_number
-            IF(c.email_address= ' . $dataToCheck['email_address'] . ',0,1) AS check_email_address
-            IF(DATE_FORMAT(c.birth_date,"%Y-%m-%d %H:%i:%s")=' . $dataToCheck['begin_date']
-            . ',0,1) AS check_begin_date, IF(c.photo ';
+            IF(c.name = ' . $dataToCheck['name'] . ',0,1) AS check_name,
+            IF(c.first_name = ' . $dataToCheck['first_name'] . ',0,1) AS check_first_name,
+            IF(c.race_number = ' . $dataToCheck['race_number'] . ',0,1) AS check_race_number
+            IF(c.email_address = ' . $dataToCheck['email_address'] . ',0,1) AS check_email_address
+            IF(DATE_FORMAT(c.birth_date,"%Y-%m-%d %H:%i:%s") = ' . $dataToCheck['birth_date']
+            . ',0,1) AS check_begin_date, 
+            IF(c.photo ';
         $request .= $dataToCheck['photo'] == 'NULL' ? 'IS ' : '= ';
         $request .=  $dataToCheck['photo'] . ',0,1) AS check_photo
+            IF(c.category_identifier = ' . $dataToCheck['category_identifier'] . ',0,1) AS check_category_identifier
+            IF(c.profile_identifier ';
+        $request .= $dataToCheck['profile_identifier'] == 'NULL' ? 'IS ' : '= ';
+        $request .=  $dataToCheck['profile_identifier'] . ',0,1) AS check_profile_identifier
             FROM contest c WHERE c.identifier = ' . $id . ';';
         $result = $this->gateway->query($request);
-        return $result->fetch(\PDO::FETCH_ASSOC);
+        $data = $result->fetch(\PDO::FETCH_ASSOC);
+        if (empty($data) === true) {
+            throw new \Exception('The checking of data modification in the database has failed.');
+        }
+        return $data;
     }
 
     private function update(int $id, array $dataToUpdate): void
@@ -98,7 +107,7 @@ class ContestModel implements ModelInterface
     {
         $request = 'INSERT INTO competitor(identifier, contest_identifier, category_identifier, 
             profile_identifier, name, first_name, race_number, birth_date, email_address, photo)
-            VALUES (,' . $dataToInsert['contest_identifier'] . ','
+            VALUES (NULL,' . $dataToInsert['contest_identifier'] . ','
             . $dataToInsert['category_identifier']  . ',' . $dataToInsert['profile_identifier']
             . ',' . $dataToInsert['name'] . ',' . $dataToInsert['first_name'] . ', '
             . $dataToInsert['race_number'] . ', ' . $dataToInsert['birth_date'] . ','
@@ -112,7 +121,7 @@ class ContestModel implements ModelInterface
         if (!empty($conditions) === true) {
             $conditionString = '';
             foreach ($conditions as $field => $fieldValue) {
-                if (stripos($fieldValue, 'Date') != false) {
+                if (stripos($fieldValue, 'Date') !== false) {
                     $field = 'DATE_FORMAT(' . str_replace('Date', '_date', $field) . ',"%Y-%m-%d %H:%i:%s")';
                 }
                 $conditionString .= $field . ' = "' . $fieldValue . '" AND ';
@@ -131,10 +140,11 @@ class ContestModel implements ModelInterface
                 $request .= ' ' . $filterString;
             }
         } else {
-            $request .= ' ORDER BY identifier ASC';
+            $request .= ' ORDER BY c.identifier ASC';
         }
         $request .= ';';
         $result = $this->gateway->query($request);
-        return $result->fetchAll(\PDO::FETCH_ASSOC);
+        $data = $result->fetchAll(\PDO::FETCH_ASSOC);
+        return empty($data) === true ? [] : $data;
     }
 }

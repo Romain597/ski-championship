@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\File\Writer;
 
-use App\File\Loader\CsvFileLoader;
+use App\FileHandler\Loader\CsvFileLoader;
 
 class CsvFileWriter implements FileWriterInterface
 {

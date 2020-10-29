@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace App\Parser;
+namespace App\FileHandler\Parser;
 
 use App\Entity\Stopwatch;
 use App\Repository\CompetitorRepository;
 
-class StopwatchParser implements ImportedFileParserInterface, ExportedFileParserInterface
+class StopwatchFileParser implements ImportedFileParserInterface, ExportedFileParserInterface
 {
     private array $dataToTransform;
     private const FIELDS_SEARCH = ['dossard', 'passage_1', 'passage_2'];
@@ -95,7 +95,7 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
             } else {
                 $raceNumber = $line[$fieldsKey['dossard']];
                 $competitor = $competitorRepository->findByRaceNumber(intval($raceNumber), $contestIdentifier);
-                if ($competitor == null) {
+                if (is_null($competitor) === true) { //if ($competitor == null) {
                     throw new \Exception("Le compétiteur n'a pas été trouvé.");
                 }
                 $stopwatchTime1 = $this->getFormatStopwatchTime($line[$fieldsKey['passage_1']]);
@@ -117,7 +117,7 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
     private function convertDataCharset(string $dataToConvert, string $outputDataCharset): string
     {
         $inputDataCharset = $this->getDataEncoding($dataToConvert);
-        if ($inputDataCharset == null) {
+        if (is_null($inputDataCharset) === true) { //if ($inputDataCharset == null) {
             throw new \Exception("L'encodage en cours n'a pas été détecté.");
         }
         $result = iconv($inputDataCharset, $outputDataCharset . '//TRANSLIT//IGNORE', $dataToConvert);
@@ -154,7 +154,7 @@ class StopwatchParser implements ImportedFileParserInterface, ExportedFileParser
         $line = [];
         foreach (self::FIELDS as $field) {
             $columnName = $this->getColumnNameByField($field);
-            if ($columnName == null) {
+            if (is_null($columnName) === true) { //if ($columnName == null) {
                 throw new \Exception("Le champs indiqué n'est pas reconnu.");
             }
             $value = null;

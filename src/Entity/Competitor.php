@@ -27,7 +27,7 @@ class Competitor
     private ?string $photo;
     private int $contestIdentifier;
     private int $categoryIdentifier;
-    private int $profileIdentifier;
+    private ?int $profileIdentifier;
     private const MAX_AGE_FOR_RACING = 120;
     private const MIN_AGE_FOR_RACING = 18;
     private const IMAGE_EXTENSION_ACCEPTED = ['jpg', 'png'];
@@ -43,7 +43,7 @@ class Competitor
      * @param  string $emailAddress
      * @param  int $contestIdentifier
      * @param  int $categoryIdentifier
-     * @param  int $profileIdentifier
+     * @param  int|null $profileIdentifier
      * @param  string|null $photo Optional photo for Competitor
      * @param  int|null $identifier By default null
      * @throws EmptyStringException If name and/or firstname and/or email and/or photo 
@@ -63,7 +63,7 @@ class Competitor
         string $emailAddress,
         int $contestIdentifier,
         int $categoryIdentifier,
-        int $profileIdentifier,
+        ?int $profileIdentifier,
         ?string $photo = null,
         ?int $identifier = null
     ) {
@@ -149,6 +149,9 @@ class Competitor
         $photo = (empty($state['photo']) === true
             || strtoupper($state['photo']) === 'NULL')
             ? null : (string) $state['photo'];
+        $profileIdentifier = (empty($state['profileIdentifier']) === true
+            && is_numeric($state['profileIdentifier']) === false)
+            ? null : (int) $state['profileIdentifier'];
         return new self(
             (string) $state['name'],
             (string) $state['firstName'],
@@ -157,7 +160,7 @@ class Competitor
             (string) $state['emailAddress'],
             (int) $state['contestIdentifier'],
             (int) $state['categoryIdentifier'],
-            (int) $state['profileIdentifier'],
+            $profileIdentifier,
             $photo,
             $identifier
         );

@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 
 class SqlGateway implements GatewayInterface
 {
-    private \PDO $pdo;
+    private ?\PDO $pdo = null;
     private string $dsn;
     private string $password;
     private string $user;
@@ -26,7 +26,7 @@ class SqlGateway implements GatewayInterface
      */
     public function __construct(string $dsn, string $user, string $password = '', ?Request $request = null)
     {
-        $host = isset($request) ? $request->server->get('REMOTE_ADDR', '') : $_SERVER['SERVER_ADDR'];
+        $host = isset($request) ? $request->server->get('REMOTE_ADDR', '') : $_SERVER['REMOTE_ADDR'];
         if (trim($dsn) == "" || trim($user) == "" || (preg_match('/^(\:\:1)|(127\.0\.0\.1)$/', $host) !== 1 && trim($password) == "" )) {
             throw new \InvalidArgumentException("The gateway login parameters must not be empty.");
         }
@@ -42,7 +42,7 @@ class SqlGateway implements GatewayInterface
     {
         if ($this->isConnectedToDatabase() === false) {
             try {
-                $this->pdoGateway = new \PDO($this->dsn, $this->user, $this->password);
+                $this->pdo = new \PDO($this->dsn, $this->user, $this->password);
             } catch (\PDOException $e) {
                 throw new \Exception('The connection has failed : ' . $e->getMessage() . ' For : ' . $this->dsn . ';user=' . $this->user, (int) $e->getCode());
             }
@@ -114,6 +114,7 @@ class SqlGateway implements GatewayInterface
             throw new \Exception('Query error : Bad binding value(s) placeholder(s). Only one symtax accepted by query.');
         }
         try {
+            dump($query);
             $pdoStatement = $this->pdo->prepare($query);
         } catch (\PDOException $e) {
             throw new \Exception('PDO error : ' . $e->getMessage() . ' For the query : ' . $query, (int) $e->getCode());
@@ -125,7 +126,7 @@ class SqlGateway implements GatewayInterface
     {
         if (count($parameters) > 0 && count($values) > 0) {
             for ($i = 1; $i < count($values); $i++) {
-                $pdoStatement->bindValue($parameters[$i], $values[][$i]);
+                $pdoStatement->bindValue($parameters[$i], $values[$i]);
             }
         }
         $result = $pdoStatement->execute();
@@ -157,7 +158,7 @@ class SqlGateway implements GatewayInterface
         $values = [];
         if (!empty($bindValues) === true) {
             $parametersKey = $this->checkQueryParameters($bindValues);
-            if ($parametersKey === null) {
+            if (is_null($parametersKey) === true) { //if ($parametersKey === null) {
                 throw new \Exception('The bind value parameter has no valid placeholder(s) associated.');
             }
             $parameters = $bindValues[$parametersKey];
@@ -172,7 +173,7 @@ class SqlGateway implements GatewayInterface
             }, ARRAY_FILTER_USE_KEY);
         }
         $queryStatement = $this->prepareQuery($query);
-        if ($queryStatement == null) {
+        if (is_null($queryStatement) === true) { //if ($queryStatement == null) {
             throw new \Exception('The query preparation has failed.');
         }
         if (!empty($bindValues) === true) {

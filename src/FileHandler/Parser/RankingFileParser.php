@@ -2,12 +2,9 @@
 
 declare(strict_types=1);
 
-namespace App\Parser;
+namespace App\FileHandler\Parser;
 
-use App\Entity\Stopwatch;
-use App\Repository\CompetitorRepository;
-
-class RankingParser implements ExportedFileParserInterface
+class RankingFileParser implements ExportedFileParserInterface
 {
     private int $exportType;
     private array $dataToTransform;
@@ -15,9 +12,9 @@ class RankingParser implements ExportedFileParserInterface
     private const FIELDS_GLOBAL = ['Classement', 'Temps Moyen', 'Dossard', 'Nom', 'Prénom'];
     private const FIELDS_CATEGORY = ['Catégorie', 'Classement', 'Temps Moyen', 'Dossard', 'Nom', 'Prénom'];
     private const FIELDS_AGE_RANGE = ['Tranche d\'âge', 'Classement', 'Temps Moyen', 'Dossard', 'Nom', 'Prénom'];
-    public const GLOBAL_EXPORT_TYPE = 1;
-    public const CATEGORY_EXPORT_TYPE = 2;
-    public const AGE_RANGE_EXPORT_TYPE = 3;
+    public const EXPORT_TYPE_GLOBAL = 1;
+    public const EXPORT_TYPE_CATEGORY = 2;
+    public const EXPORT_TYPE_AGE_RANGE = 3;
 
     public function __construct(int $exportType, array $dataToTransform)
     {
@@ -34,26 +31,17 @@ class RankingParser implements ExportedFileParserInterface
     private function getFieldsByExportType(): ?array
     {
         switch ($this->exportType) {
-            case 1:
+            case self::EXPORT_TYPE_GLOBAL:
                 return self::FIELDS_GLOBAL;
             break;
-            case 2:
+            case self::EXPORT_TYPE_CATEGORY:
                 return self::FIELDS_CATEGORY;
             break;
-            case 3:
+            case self::EXPORT_TYPE_AGE_RANGE:
                 return self::FIELDS_AGE_RANGE;
             break;
         }
         return null;
-    }
-
-    private function getFormatStopwatchTime(string $time): string
-    {
-        $time = str_replace('.', ',', $time);
-        if (preg_match('/\d{3,9}(\,\d{1,2})?/', $time) !== 1) {
-            throw new \Exception("Le temps de passage $time n'est pas au bon format.");
-        }
-        return $time;
     }
 
     private function getDataEncoding(string $dataToAnalyse): ?string
@@ -65,7 +53,7 @@ class RankingParser implements ExportedFileParserInterface
     private function convertDataCharset(string $dataToConvert, string $outputDataCharset): string
     {
         $inputDataCharset = $this->getDataEncoding($dataToConvert);
-        if ($inputDataCharset == null) {
+        if (is_null($inputDataCharset) === true) { //if ($inputDataCharset == null) {
             throw new \Exception("L'encodage en cours n'a pas été détecté.");
         }
         $result = iconv($inputDataCharset, $outputDataCharset . '//TRANSLIT//IGNORE', $dataToConvert);
@@ -109,7 +97,7 @@ class RankingParser implements ExportedFileParserInterface
         $fields = $this->getFieldsByExportType();
         foreach ($fields as $field) {
             $columnName = $this->getColumnNameByField($field);
-            if ($columnName == null) {
+            if (is_null($columnName) === true) { //if ($columnName == null) {
                 throw new \Exception("Le champs indiqué n'est pas reconnu.");
             }
             if (isset($data[$columnName]) === false) {
