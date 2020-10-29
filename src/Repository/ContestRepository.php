@@ -6,14 +6,20 @@ namespace App\Repository;
 
 use App\Entity\Contest;
 use App\Model\ContestModel;
+use App\Model\ModelInterface;
 
-class ContestRepository implements RepositoryInterface
+class ContestRepository extends AbstractRepository implements RepositoryInterface
 {
     private ContestModel $contestManager;
 
     public function __construct(ContestModel $contestManager)
     {
         $this->contestManager = $contestManager;
+    }
+
+    public function getModel(): ModelInterface
+    {
+        return $this->contestManager;
     }
 
     public function add(Contest $contest): void
@@ -33,28 +39,20 @@ class ContestRepository implements RepositoryInterface
 
     public function findById(int $id): ?Contest
     {
-        $arrayOfState = $this->contestManager->search([['identifier','=',$id]]);
+        $alias = $this->contestManager->getTableAlias();
+        $arrayOfState = $this->contestManager->search(["$alias.identifier = $id"]);
         return empty($arrayOfState) === true ? null : Contest::fromState($arrayOfState[0]);
     }
 
-    public function findBy(array $conditions, int $offset = 0, int $limit = -1, array $order = [], array $having = [], array $group = []): ?array
+    public function findBy(array $conditions, int $offset = 0, int $limit = 0, array $group = [], array $having = [], array $order = []): ?array
     {
-        if (!empty($order) === true) {
-            $filters['order'] = $order;
+        $alias = $this->contestManager->getTableAlias();
+        $conditionsForModel = $this->getConditions($alias, $conditions);
+        if ($this->contestManager->isValidConditions($having) === false) {
+            throw new \Exception("Il y a un problème d'opérateur dans le paramètre HAVING.");
         }
-        if (!empty($having) === true) {
-            $filters['having'] = $having;
-        }
-        if (!empty($group) === true) {
-            $filters['group'] = $group;
-        }
-        if (!empty($offset) === true) {
-            $filters['offset'] = $offset;
-        }
-        if (!empty($limit) === true) {
-            $filters['limit'] = $limit;
-        }
-        $arrayOfState = $this->contestManager->search($conditions, $filters);
+        $filters = $this->getFilters($alias, $offset, $limit, $group, $having, $order);
+        $arrayOfState = $this->contestManager->search($conditionsForModel, $filters);
         $arrayOfContest = [];
         if (!empty($arrayOfState) === true) {
             foreach ($arrayOfState as $state) {

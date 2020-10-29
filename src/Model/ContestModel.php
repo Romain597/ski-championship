@@ -6,9 +6,10 @@ namespace App\Model;
 
 use App\Gateway\GatewayInterface;
 
-class ContestModel implements ModelInterface
+class ContestModel extends AbstractModel implements ModelInterface
 {
     private GatewayInterface $gateway;
+    private const TABLE_ALIAS = 'e';
 
     public function __construct(GatewayInterface $gateway)
     {
@@ -96,38 +97,30 @@ class ContestModel implements ModelInterface
         $this->gateway->query($request);
     }
 
-    public function search(array $conditions = [], array $filters = []): array
+    public function search(array $conditions = [], array $filters = [], bool $distinct = false): array
     {
-        $request = 'SELECT c.* FROM contest c';
-        if (!empty($conditions) === true) {
-            $conditionString = '';
-            for ($i = 0; $i < count($conditions); $i++) {
-                foreach ($conditions[$i] as $field => $fieldValue) {
-                    if (stripos($fieldValue, 'At') !== false) {
-                        $field = 'DATE_FORMAT(' . str_replace('At', '_date', $field) . ',"%Y-%m-%d %H:%i:%s")';
-                    }
-                    $conditionString .= $field . ' = "' . $fieldValue . '" AND ';
-                }
-            }
-            if (trim($conditionString) != '') {
-                $conditionString = substr($conditionString, 0, strlen($conditionString) - 4);
-                $request .= ' WHERE ' . $conditionString;
-            }
+        $request = 'SELECT ' . self::TABLE_ALIAS . '.* FROM contest ' . self::TABLE_ALIAS;
+        if ($distinct === true) {
+            $request = 'SELECT DISTINCT ' . self::TABLE_ALIAS . '.* FROM contest ' . self::TABLE_ALIAS;
         }
-        if (!empty($filters) === true) {
-            $filterString = '';
-            foreach ($filters as $field => $fieldValue) {
-                $filterString .= $field . ' ' . $fieldValue . ' ';
-            }
-            if (trim($filterString) != '') {
-                $request .= ' ' . $filterString;
-            }
+        if (!empty($conditions) === true && $this->isValidConditions($conditions) === true) {
+            $request .= ' WHERE ' . implode(' ', $conditions);
+        }
+        $filterString = '';
+        if (!empty($filters) === true && $this->isValidFilters($filters) === true) {
+            $filterString = implode(' ', $filters);
         } else {
-            $request .= ' ORDER BY c.identifier ASC';
+            $filterString = ' ORDER BY ' . self::TABLE_ALIAS . '.identifier ASC';
         }
+        $request .= $filterString;
         $request .= ';';
         $result = $this->gateway->query($request);
         $data = $result->fetchAll(\PDO::FETCH_ASSOC);
         return empty($data) === true ? [] : $data;
+    }
+
+    public function getTableAlias(): string
+    {
+        return self::TABLE_ALIAS;
     }
 }
