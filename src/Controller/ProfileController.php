@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 
-class ProfileController
+class ProfileController extends AbstractController
 {
     private Environment $twig;
 

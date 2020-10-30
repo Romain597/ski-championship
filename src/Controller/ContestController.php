@@ -7,10 +7,12 @@ namespace App\Controller;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
+use App\Gateway\SqlGateway;
 
-class ContestController
+class ContestController extends AbstractController
 {
     private Environment $twig;
+    //private const LIMIT_BY_PAGE = ;
 
     public function __construct(Environment $twig)
     {
@@ -21,8 +23,19 @@ class ContestController
     {
         //$page = $request->attributes->get('page', 0);
         //extract($parameters);
+        require '../Gateway/Database/mysqlMainDatabase.php';
+        if (!isset($dsn) === true || !isset($user) === true || !isset($password) === true) {
+            throw new \Exception("Les données de connexion à la base de données ne sont pas tous initialisés.");
+        }
+        $mysqlGateway = new SqlGateway($dsn, $user, $password);
+        $repository = $this->getRepository($mysqlGateway);
+        $dataList = $repository->findAll();
+        $dataToRender = ['contests' => []];
+        if (is_null($dataList) === false) {
+            $dataToRender['contests'] = $dataList;
+        }
         return new Response(
-            $this->twig->render('contest/index.html.twig'),
+            $this->twig->render('contest/index.html.twig', $dataToRender),
             Response::HTTP_OK
         );
     }

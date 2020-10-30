@@ -73,4 +73,15 @@ class CompetitorRepository extends AbstractRepository implements RepositoryInter
         }
         return empty($arrayOfCompetitor) === true ? null : $arrayOfCompetitor;
     }
+
+    public function findByRaceNumber(int $raceNumber, int $contestIdentifier): ?Competitor
+    {
+        $competitor = null;
+        $alias = $this->competitorManager->getTableAlias();
+        $competitorArray = $this->findBy(["$alias.race_number = $raceNumber", "AND $alias.contest_identifier = $contestIdentifier"]);
+        if (!empty($competitorArray) === true && count($competitorArray) === 1) {
+            $competitor = $competitorArray[0];
+        }
+        return $competitor;
+    }
 }
