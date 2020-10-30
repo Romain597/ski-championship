@@ -17,10 +17,11 @@ $routes->add(
     )
 );
 // List of contest
+// '/epreuves/page/{page}',
 $routes->add(
     'contest_list',
     new Route(
-        '/epreuves/page/{page}',
+        '/epreuves/{page}',
         [
             '_controller' => 'App\Controller\ContestController::viewList',
             'page' => 1

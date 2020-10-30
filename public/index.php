@@ -15,6 +15,9 @@ use Symfony\Component\Routing\Exception\ResourceNotFoundException;
 // instantiate twig
 $loader = new \Twig\Loader\FilesystemLoader('../templates');
 $twig = new \Twig\Environment($loader);
+/*, [
+    'cache' => '../tmp/twig_cache',
+]*/
 
 require_once __DIR__ . '/../src/routes.php';
 
@@ -33,17 +36,25 @@ try {
         $parameters = $matcher->match($context->getPathInfo())
     );
 
-    if (!isset($parameters['_controller']) === true) {
-        $redirect = new RedirectResponse('/epreuves/page');
-        $redirect->send();
+    if (is_null($parameters) === true || !is_string($parameters['_controller']) === true) {
+        throw new ResourceNotFoundException('Request parameters are empty.', Response::HTTP_NOT_FOUND);
     }
+
+    if (!isset($parameters['_controller']) === true) {
+        $redirect = new RedirectResponse('/epreuves');
+        $redirect->send();
+        die();
+    }
+    dump($parameters);
 
     if (preg_match('/^[\w\\\]+\:\:\w+$/', $parameters['_controller']) !== 1) {
         throw new \Exception('Route controller has not a valid symtax.');
     }
     $controller = preg_split('#\:\:#', $parameters['_controller'], -1, PREG_SPLIT_NO_EMPTY);
     $controller[0] = new $controller[0]($twig);
+    //dump($controller);
     $response = call_user_func($controller, $request);
+    //dump($response);
 } catch (ResourceNotFoundException $e) {
     $errorController = new ErrorController($twig);
     $response = $errorController->notFound($request, $e);

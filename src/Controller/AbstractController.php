@@ -9,23 +9,25 @@ use App\Gateway\GatewayInterface;
 
 class AbstractController
 {
-    private RepositoryInterface $repository;
+    private ?RepositoryInterface $repository = null;
 
-    public function getRepository(GatewayInterface $gateway): ?RepositoryInterface
+    public function getRepository(string $className, GatewayInterface $gateway): ?RepositoryInterface
     {
         if (($this->repository instanceof RepositoryInterface) === false) {
-            $this->buildRepository($gateway);
+            //dump($className);
+            //dump(stripos(trim($className), 'ErrorController'));
+            if (stripos(trim($className), 'ErrorController') === false) {
+                $entityName = str_replace('Controller', '?', $className);
+                $this->buildRepository($entityName, $gateway);
+            }
         }
         return $this->repository;
     }
 
-    private function buildRepository(GatewayInterface $gateway): void
+    private function buildRepository(string $entityName, GatewayInterface $gateway): void
     {
-        $entityName = str_replace('Controller', '', __CLASS__);
-        if (trim($entityName) != 'Error') {
-            $classModel = '\\App\\Model\\' . $entityName . 'Model';
-            $classRepository = '\\App\\Repository\\' . $entityName . 'Repository';
-            $this->repository = new $classRepository(new $classModel($gateway));
-        }
+        $classModel = '\\' . str_replace('?', 'Model', $entityName);
+        $classRepository = '\\' . str_replace('?', 'Repository', $entityName);
+        $this->repository = new $classRepository(new $classModel($gateway));
     }
 }

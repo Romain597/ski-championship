@@ -1,9 +1,11 @@
 {% extends "index.html.twig" %}
 
-{% block title %}Epreuves{% endblock %}
+{% block title %}Épreuves{% endblock %}
 {% block content %}
-    <h1>Index</h1>
-    <p class="important">
-        Welcome to my awesome homepage.
-    </p>
+    <h1>Épreuves</h1>
+    {% for contest in contests %}
+        * {{ contest.name }}
+    {% else %}
+        <p class="">Aucune épreuves, voulez-vous en ajouter une ?</p>
+    {% endfor %}
 {% endblock %}
