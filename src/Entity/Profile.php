@@ -7,7 +7,7 @@ namespace App\Entity;
 use App\Entity\Exception\EmptyStringException;
 use App\Entity\Exception\AlreadySetException;
 
-class Profile
+class Profile implements EntityInterface
 {
     private ?int $identifier;
     private string $name;

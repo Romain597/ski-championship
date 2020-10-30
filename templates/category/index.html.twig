@@ -1,0 +1,26 @@
+{% extends "index.html.twig" %}
+
+{% block title %}Catégories{% endblock %}
+{% block content %}
+    <h1>Liste des catégories</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Catégorie</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for category in categories %}
+                    <tr>
+                        <td>{{ category.name }}</td>
+                        <td>{{ category.description }}</td>
+                    </tr>
+                {% else %}
+                    <p class="">Aucune catégorie, voulez-vous en ajouter une ?</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

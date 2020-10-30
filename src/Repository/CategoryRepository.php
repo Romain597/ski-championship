@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Category;
 use App\Model\CategoryModel;
 use App\Model\ModelInterface;
+use App\Entity\EntityInterface;
 
 class CategoryRepository extends AbstractRepository implements RepositoryInterface
 {
@@ -22,7 +23,7 @@ class CategoryRepository extends AbstractRepository implements RepositoryInterfa
         return $this->categoryManager;
     }
 
-    public function add(Category $category): void
+    public function add(EntityInterface $category): void
     {
         $this->categoryManager->save($category->toArray());
     }
@@ -32,7 +33,7 @@ class CategoryRepository extends AbstractRepository implements RepositoryInterfa
         $this->categoryManager->remove($id);
     }
 
-    public function modify(Category $category): void
+    public function modify(EntityInterface $category): void
     {
         $this->categoryManager->save($category->toArray());
     }

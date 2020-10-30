@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Competitor;
 use App\Model\CompetitorModel;
 use App\Model\ModelInterface;
+use App\Entity\EntityInterface;
 
 class CompetitorRepository extends AbstractRepository implements RepositoryInterface
 {
@@ -22,7 +23,7 @@ class CompetitorRepository extends AbstractRepository implements RepositoryInter
         return $this->competitorManager;
     }
 
-    public function add(Competitor $competitor): void
+    public function add(EntityInterface $competitor): void
     {
         $this->competitorManager->save($competitor->toArray());
     }
@@ -32,7 +33,7 @@ class CompetitorRepository extends AbstractRepository implements RepositoryInter
         $this->competitorManager->remove($id);
     }
 
-    public function modify(Competitor $competitor): void
+    public function modify(EntityInterface $competitor): void
     {
         $this->competitorManager->save($competitor->toArray());
     }

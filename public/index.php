@@ -24,6 +24,7 @@ require_once __DIR__ . '/../src/routes.php';
 // Init RequestContext object
 $context = new RequestContext();
 $context->fromRequest($request = Request::createFromGlobals());
+
 //dd($request->server->get('REMOTE_ADDR'));
 $response = new Response();
 
@@ -36,7 +37,9 @@ try {
         $parameters = $matcher->match($context->getPathInfo())
     );
 
-    if (is_null($parameters) === true || !is_string($parameters['_controller']) === true) {
+    dump($parameters);
+
+    if (is_null($parameters) === true) {
         throw new ResourceNotFoundException('Request parameters are empty.', Response::HTTP_NOT_FOUND);
     }
 
@@ -45,7 +48,10 @@ try {
         $redirect->send();
         die();
     }
-    dump($parameters);
+
+    if (!is_string($parameters['_controller']) === true) {
+        throw new ResourceNotFoundException('Request controller is empty.', Response::HTTP_NOT_FOUND);
+    }
 
     if (preg_match('/^[\w\\\]+\:\:\w+$/', $parameters['_controller']) !== 1) {
         throw new \Exception('Route controller has not a valid symtax.');

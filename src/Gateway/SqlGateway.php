@@ -114,7 +114,7 @@ class SqlGateway implements GatewayInterface
             throw new \Exception('Query error : Bad binding value(s) placeholder(s). Only one symtax accepted by query.');
         }
         try {
-            dump($query);
+            //dump($query);
             $pdoStatement = $this->pdo->prepare($query);
         } catch (\PDOException $e) {
             throw new \Exception('PDO error : ' . $e->getMessage() . ' For the query : ' . $query, (int) $e->getCode());

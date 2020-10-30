@@ -78,8 +78,8 @@ class StopwatchFileParser implements ImportedFileParserInterface, ExportedFilePa
         return Stopwatch::fromState([
             'turn' => $turn,
             'time' => $stopwatchTime,
-            'competitorIdentifier' => $competitorIdentifier,
-            'contestIdentifier' => $contestIdentifier]);
+            'competitor_identifier' => $competitorIdentifier,
+            'contest_identifier' => $contestIdentifier]);
     }
 
     public function retrieveObjects(int $contestIdentifier, CompetitorRepository $competitorRepository): array

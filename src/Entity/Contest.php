@@ -14,7 +14,7 @@ use App\Entity\Exception\PastDateException;
  * Class Contest
  * A contest every years   
  */
-class Contest
+class Contest implements EntityInterface
 {
     private ?int $identifier;
     private string $name;
@@ -75,8 +75,8 @@ class Contest
         return new self(
             (string) $state['name'],
             (string) $state['location'],
-            new \DateTimeImmutable($state['beginAt'], new \DateTimeZone(self::TIME_ZONE)),
-            new \DateTimeImmutable($state['endAt'], new \DateTimeZone(self::TIME_ZONE)),
+            new \DateTimeImmutable($state['begin_date'], new \DateTimeZone(self::TIME_ZONE)),
+            new \DateTimeImmutable($state['end_date'], new \DateTimeZone(self::TIME_ZONE)),
             $identifier
         );
     }

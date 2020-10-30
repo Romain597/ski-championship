@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Contest;
 use App\Model\ContestModel;
 use App\Model\ModelInterface;
+use App\Entity\EntityInterface;
 
 class ContestRepository extends AbstractRepository implements RepositoryInterface
 {
@@ -22,7 +23,7 @@ class ContestRepository extends AbstractRepository implements RepositoryInterfac
         return $this->contestManager;
     }
 
-    public function add(Contest $contest): void
+    public function add(EntityInterface $contest): void
     {
         $this->contestManager->save($contest->toArray());
     }
@@ -32,7 +33,7 @@ class ContestRepository extends AbstractRepository implements RepositoryInterfac
         $this->contestManager->remove($id);
     }
 
-    public function modify(Contest $contest): void
+    public function modify(EntityInterface $contest): void
     {
         $this->contestManager->save($contest->toArray());
     }

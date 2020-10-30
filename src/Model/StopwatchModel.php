@@ -8,8 +8,8 @@ use App\Gateway\GatewayInterface;
 
 class StopwatchModel extends AbstractModel implements ModelInterface
 {
-    private GatewayInterface $gateway;
-    private const TABLE_ALIAS = 's';
+    protected GatewayInterface $gateway;
+    protected const TABLE_ALIAS = 's';
 
     public function __construct(GatewayInterface $gateway)
     {

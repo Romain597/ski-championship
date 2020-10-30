@@ -6,4 +6,4 @@ namespace App\Gateway\Database;
 
 $user = 'root';
 $password = '';
-$dsn = 'mysql:host=localhost;port=3000;dbname=ski_cup_logitud';
+$dsn = 'mysql:host=localhost;dbname=ski_cup_logitud';

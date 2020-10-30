@@ -1,0 +1,26 @@
+{% extends "index.html.twig" %}
+
+{% block title %}Passage{% endblock %}
+{% block content %}
+    <h1>Liste des passages</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Passage</th>
+                    <th scope="col">Temps</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for stopwatch in stopwatchs %}
+                    <tr>
+                        <td>{{ stopwatch.turn }}</td>
+                        <td>{{ stopwatch.time }}</td>
+                    </tr>
+                {% else %}
+                    <p class="">Aucun passage, voulez-vous en ajouter un ?</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

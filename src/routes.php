@@ -16,7 +16,9 @@ $routes->add(
         '/'
     )
 );
-// List of contest
+
+// Contest
+// List of Contest
 // '/epreuves/page/{page}',
 $routes->add(
     'contest_list',
@@ -72,6 +74,64 @@ $routes->add(
         [
             'contest' => '\d+',
             'slug' => '[\w\-]*'
+        ]
+    )
+);
+
+// Category
+// List of Categories
+$routes->add(
+    'category_list',
+    new Route(
+        '/categories/{page}',
+        [
+            '_controller' => 'App\Controller\CategoryController::viewList',
+            'page' => 1
+        ],
+        [
+            'page' => '\d+'
+        ]
+    )
+);
+
+// Profile
+// List of Profiles
+$routes->add(
+    'profile_list',
+    new Route(
+        '/profils/{page}',
+        [
+            '_controller' => 'App\Controller\ProfileController::viewList',
+            'page' => 1
+        ],
+        [
+            'page' => '\d+'
+        ]
+    )
+);
+
+// Stopwatch
+// List of Stopwatchs
+$routes->add(
+    'stopwatch_list',
+    new Route(
+        '/classements/{page}',
+        [
+            '_controller' => 'App\Controller\StopwatchController::viewList',
+            'page' => 1
+        ],
+        [
+            'page' => '\d+'
+        ]
+    )
+);
+
+$routes->add(
+    'test_export',
+    new Route(
+        '/epreuve/export',
+        [
+            '_controller' => 'App\Controller\StopwatchController::export',
         ]
     )
 );

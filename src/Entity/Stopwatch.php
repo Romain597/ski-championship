@@ -8,7 +8,7 @@ use App\Entity\Exception\NegativeNumberException;
 use App\Entity\Exception\BoundaryNumberException;
 use App\Entity\Exception\AlreadySetException;
 
-class Stopwatch
+class Stopwatch implements EntityInterface
 {
     private ?int $identifier;
     private int $turn;
@@ -70,8 +70,8 @@ class Stopwatch
         return new self(
             (int) $state['turn'],
             (float) $state['time'],
-            (int) $state['competitorIdentifier'],
-            (int) $state['contestIdentifier'],
+            (int) $state['competitor_identifier'],
+            (int) $state['contest_identifier'],
             $identifier
         );
     }

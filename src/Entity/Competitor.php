@@ -16,7 +16,7 @@ use App\Entity\Exception\ImageExtensionException;
  * Class Competitor
  * A competitor participe to one competitor
  */
-class Competitor
+class Competitor implements EntityInterface
 {
     private ?int $identifier;
     private string $name;
@@ -149,17 +149,17 @@ class Competitor
         $photo = (empty($state['photo']) === true
             || strtoupper($state['photo']) === 'NULL')
             ? null : (string) $state['photo'];
-        $profileIdentifier = (empty($state['profileIdentifier']) === true
-            && is_numeric($state['profileIdentifier']) === false)
-            ? null : (int) $state['profileIdentifier'];
+        $profileIdentifier = (empty($state['profile_identifier']) === true
+            && is_numeric($state['profile_identifier']) === false)
+            ? null : (int) $state['profile_identifier'];
         return new self(
             (string) $state['name'],
-            (string) $state['firstName'],
-            (int) $state['raceNumber'],
-            new \DateTimeImmutable($state['birthDate'], new \DateTimeZone(self::TIME_ZONE)),
-            (string) $state['emailAddress'],
-            (int) $state['contestIdentifier'],
-            (int) $state['categoryIdentifier'],
+            (string) $state['first_name'],
+            (int) $state['race_number'],
+            new \DateTimeImmutable($state['birth_date'], new \DateTimeZone(self::TIME_ZONE)),
+            (string) $state['email_address'],
+            (int) $state['contest_identifier'],
+            (int) $state['category_identifier'],
             $profileIdentifier,
             $photo,
             $identifier

@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Profile;
 use App\Model\ProfileModel;
 use App\Model\ModelInterface;
+use App\Entity\EntityInterface;
 
 class ProfileRepository extends AbstractRepository implements RepositoryInterface
 {
@@ -22,7 +23,7 @@ class ProfileRepository extends AbstractRepository implements RepositoryInterfac
         return $this->profileManager;
     }
 
-    public function add(Profile $profile): void
+    public function add(EntityInterface $profile): void
     {
         $this->profileManager->save($profile->toArray());
     }
@@ -32,7 +33,7 @@ class ProfileRepository extends AbstractRepository implements RepositoryInterfac
         $this->profileManager->remove($id);
     }
 
-    public function modify(Profile $profile): void
+    public function modify(EntityInterface $profile): void
     {
         $this->profileManager->save($profile->toArray());
     }

@@ -1,0 +1,26 @@
+{% extends "index.html.twig" %}
+
+{% block title %}Profils{% endblock %}
+{% block content %}
+    <h1>Liste des profils</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Profil</th>
+                    <th scope="col">Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for profile in profiles %}
+                    <tr>
+                        <td>{{ profile.name }}</td>
+                        <td>{{ profile.description }}</td>
+                    </tr>
+                {% else %}
+                    <p class="">Aucun profil, voulez-vous en ajouter un ?</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

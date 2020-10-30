@@ -8,8 +8,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 use App\Gateway\SqlGateway;
-use App\Model\ContestModel;
-use App\Repository\ContestRepository;
 
 class ContestController extends AbstractController
 {
@@ -30,16 +28,13 @@ class ContestController extends AbstractController
             throw new \Exception("Les données de connexion à la base de données ne sont pas tous initialisés.");
         }
         $mysqlGateway = new SqlGateway($dsn, $user, $password, $request);
-        $model = new ContestModel($mysqlGateway);
-        $repository = new ContestRepository($model);
-        //$repository = $this->getRepository(__CLASS__, $mysqlGateway);
-        dump($repository);
-        /*$dataList = $repository->findAll();*/
+        $repository = $this->getRepository(__CLASS__, $mysqlGateway);
+        $dataList = $repository->findAll();
         $dataToRender = ['contests' => []];
-        /*if (is_null($dataList) === false) {
+        if (is_null($dataList) === false) {
             $dataToRender['contests'] = $dataList;
-        }*/
-        dump($dataToRender);
+        }
+        //dump($dataToRender);
         return new Response(
             $this->twig->render('contest/index.html.twig', $dataToRender),
             Response::HTTP_OK

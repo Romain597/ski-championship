@@ -1,0 +1,36 @@
+{% extends "index.html.twig" %}
+
+{% block title %}Passage{% endblock %}
+{% block content %}
+    <h1>Liste des passages</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Classement</th>
+                    <th scope="col">Temps</th>
+                    <th scope="col">Nom</th>
+                    <th scope="col">Prénom</th>
+                    <th scope="col">Photo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ranking in rankings %}
+                    <tr>
+                        <td>{{ ranking.rank }}</td>
+                        <td>{{ ranking.average_time | date('H:i:s.v', false) }}</td>
+                        <td>{{ ranking.name }}</td>
+                        <td>{{ ranking.first_name }}</td>
+                        <td>
+                            {% if ranking.photo|length > 0 %}
+                                <img alt="" width="20px" height="20px" src="assets/img/{{ ranking.photo }}">
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% else %}
+                    <p class="">Aucun passage, voulez-vous en ajouter un ?</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

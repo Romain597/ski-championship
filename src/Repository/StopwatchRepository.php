@@ -7,6 +7,7 @@ namespace App\Repository;
 use App\Entity\Stopwatch;
 use App\Model\StopwatchModel;
 use App\Model\ModelInterface;
+use App\Entity\EntityInterface;
 
 class StopwatchRepository extends AbstractRepository implements RepositoryInterface
 {
@@ -22,7 +23,7 @@ class StopwatchRepository extends AbstractRepository implements RepositoryInterf
         return $this->stopwatchManager;
     }
 
-    public function add(Stopwatch $stopwatch): void
+    public function add(EntityInterface $stopwatch): void
     {
         $this->stopwatchManager->save($stopwatch->toArray());
     }
@@ -32,7 +33,7 @@ class StopwatchRepository extends AbstractRepository implements RepositoryInterf
         $this->stopwatchManager->remove($id);
     }
 
-    public function modify(Stopwatch $stopwatch): void
+    public function modify(EntityInterface $stopwatch): void
     {
         $this->stopwatchManager->save($stopwatch->toArray());
     }

@@ -2,10 +2,29 @@
 
 {% block title %}Épreuves{% endblock %}
 {% block content %}
-    <h1>Épreuves</h1>
-    {% for contest in contests %}
-        * {{ contest.name }}
-    {% else %}
-        <p class="">Aucune épreuves, voulez-vous en ajouter une ?</p>
-    {% endfor %}
+    <h1>Liste des épreuves</h1>
+    <div class="table-responsive">
+        <table class="table">
+            <thead class="thead-light">
+                <tr>
+                    <th scope="col">Épreuve</th>
+                    <th scope="col">Lieu</th>
+                    <th scope="col">Date de début</th>
+                    <th scope="col">Date de fin</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contest in contests %}
+                    <tr>
+                        <td>{{ contest.name }}</td>
+                        <td>{{ contest.location }}</td>
+                        <td>{{ contest.beginAt | date('d/m/Y H:i', timezone="Europe/Paris") }}</td>
+                        <td>{{ contest.endAt | date('d/m/Y H:i', timezone="Europe/Paris") }}</td>
+                    </tr>
+                {% else %}
+                    <p class="">Aucune épreuves, voulez-vous en ajouter une ?</p>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}
