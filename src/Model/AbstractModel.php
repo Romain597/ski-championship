@@ -77,10 +77,10 @@ abstract class AbstractModel
         return true;
     }
 
-    public function request(string $sql): array
+    public function request(string $sql, array $bindData = [], int $fetchMode = \PDO::FETCH_ASSOC): array
     {
-        $result = $this->gateway->query($sql);
-        $data = $result->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $this->gateway->query($sql, $bindData);
+        $data = $result->fetchAll($fetchMode);
         return empty($data) === true ? [] : $data;
     }
 }

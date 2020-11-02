@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace App\File\Reader;
+namespace App\FileHandler\Reader;
 
 use App\FileHandler\Loader\CsvFileLoader;
 

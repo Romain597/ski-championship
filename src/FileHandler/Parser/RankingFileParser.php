@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\FileHandler\Parser;
 
-class RankingFileParser implements ExportedFileParserInterface
+class RankingFileParser implements ExportFileParserInterface
 {
     private int $exportType;
     private array $dataToTransform;
@@ -75,8 +75,8 @@ class RankingFileParser implements ExportedFileParserInterface
             case 'Classement':
                 return 'rank';
             break;
-            case 'Temps Moyen':
-                return 'median_time';
+            case 'Temps Moyen': //median_time
+                return 'average_time';
             break;
             case 'Dossard':
                 return 'race_number';

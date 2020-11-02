@@ -6,7 +6,7 @@ namespace App\FileHandler\Parser;
 
 use App\Repository\CompetitorRepository;
 
-interface ImportedFileParserInterface
+interface ImportFileParserInterface
 {
     public function retrieveObjects(int $contestIdentifier, CompetitorRepository $competitorRepository): array;
 }

@@ -11,8 +11,9 @@ use App\Gateway\SqlGateway;
 
 class CategoryController extends AbstractController
 {
-    private Environment $twig;
-    private const LIMIT_BY_PAGE = 15;
+    private int $limitByPage = self::LIMIT_BY_PAGE;
+    private string $csvCharset = self::CSV_CHARSET;
+    private string $csvDelimiter = self::CSV_DELIMITER;
 
     public function __construct(Environment $twig)
     {
@@ -22,7 +23,7 @@ class CategoryController extends AbstractController
     public function viewList(Request $request): Response
     {
         //$page = $request->attributes->get('page', 0);
-        require __DIR__ . '/../Gateway/Database/mysqlMainDatabase.php';
+        require __DIR__ . '/../../config/database/mysqlMainDatabase.php';
         if (!isset($dsn) === true || !isset($user) === true || !isset($password) === true) {
             throw new \Exception("Les données de connexion à la base de données ne sont pas tous initialisés.");
         }

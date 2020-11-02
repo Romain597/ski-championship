@@ -7,7 +7,7 @@ namespace App\FileHandler\Parser;
 use App\Entity\Stopwatch;
 use App\Repository\CompetitorRepository;
 
-class StopwatchFileParser implements ImportedFileParserInterface, ExportedFileParserInterface
+class StopwatchFileParser implements ImportFileParserInterface, ExportFileParserInterface
 {
     private array $dataToTransform;
     private const FIELDS_SEARCH = ['dossard', 'passage_1', 'passage_2'];

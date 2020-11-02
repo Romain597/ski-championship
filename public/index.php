@@ -19,7 +19,7 @@ $twig = new \Twig\Environment($loader);
     'cache' => '../tmp/twig_cache',
 ]*/
 
-require_once __DIR__ . '/../src/routes.php';
+require_once __DIR__ . '/../config/routes.php';
 
 // Init RequestContext object
 $context = new RequestContext();
