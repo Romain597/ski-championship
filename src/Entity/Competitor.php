@@ -30,8 +30,8 @@ class Competitor implements EntityInterface
     private ?int $profileIdentifier;
     public const MAX_AGE_FOR_RACING = 120;
     public const MIN_AGE_FOR_RACING = 18;
-    private const IMAGE_EXTENSION_ACCEPTED = ['jpg', 'png'];
-    private const TIME_ZONE = 'Europe/Paris';
+    public const IMAGE_EXTENSION_ACCEPTED = ['jpg', 'png'];
+    public const TIME_ZONE = 'Europe/Paris';
 
     /**
      * Construct and initialize the instance of the object

@@ -23,9 +23,10 @@ class StopwatchRepository extends AbstractRepository implements RepositoryInterf
         return $this->stopwatchManager;
     }
 
-    public function add(EntityInterface $stopwatch): void
+    public function add(EntityInterface $stopwatch): int
     {
-        $this->stopwatchManager->save($stopwatch->toArray());
+        $id = $this->stopwatchManager->save($stopwatch->toArray());
+        return $id;
     }
 
     public function remove(int $id): void
@@ -45,14 +46,14 @@ class StopwatchRepository extends AbstractRepository implements RepositoryInterf
         return empty($arrayOfState) === true ? null : Stopwatch::fromState($arrayOfState[0]);
     }
 
-    public function findBy(array $conditions, int $offset = 0, int $limit = 0, array $group = [], array $having = [], array $order = []): ?array
+    public function findBy(array $conditions, array $orders = [], int $offset = 0, int $limit = 0, array $groups = [], array $havings = []): ?array
     {
         $alias = $this->stopwatchManager->getTableAlias();
         $conditionsForModel = $this->getConditions($alias, $conditions);
-        if ($this->stopwatchManager->isValidConditions($having) === false) {
+        if ($this->stopwatchManager->isValidConditions($havings) === false) {
             throw new \Exception("Il y a un problème d'opérateur dans le paramètre HAVING.");
         }
-        $filters = $this->getFilters($alias, $offset, $limit, $group, $having, $order);
+        $filters = $this->getFilters($alias, $offset, $limit, $groups, $havings, $orders);
         $arrayOfState = $this->stopwatchManager->search($conditionsForModel, $filters);
         $arrayOfStopwatch = [];
         if (!empty($arrayOfState) === true) {

@@ -23,9 +23,10 @@ class ProfileRepository extends AbstractRepository implements RepositoryInterfac
         return $this->profileManager;
     }
 
-    public function add(EntityInterface $profile): void
+    public function add(EntityInterface $profile): int
     {
-        $this->profileManager->save($profile->toArray());
+        $id = $this->profileManager->save($profile->toArray());
+        return $id;
     }
 
     public function remove(int $id): void
@@ -45,14 +46,14 @@ class ProfileRepository extends AbstractRepository implements RepositoryInterfac
         return empty($arrayOfState) === true ? null : Profile::fromState($arrayOfState[0]);
     }
 
-    public function findBy(array $conditions, int $offset = 0, int $limit = 0, array $group = [], array $having = [], array $order = []): ?array
+    public function findBy(array $conditions, array $orders = [], int $offset = 0, int $limit = 0, array $groups = [], array $havings = []): ?array
     {
         $alias = $this->profileManager->getTableAlias();
         $conditionsForModel = $this->getConditions($alias, $conditions);
-        if ($this->profileManager->isValidConditions($having) === false) {
+        if ($this->profileManager->isValidConditions($havings) === false) {
             throw new \Exception("Il y a un problème d'opérateur dans le paramètre HAVING.");
         }
-        $filters = $this->getFilters($alias, $offset, $limit, $group, $having, $order);
+        $filters = $this->getFilters($alias, $offset, $limit, $groups, $havings, $orders);
         $arrayOfState = $this->profileManager->search($conditionsForModel, $filters);
         $arrayOfProfile = [];
         if (!empty($arrayOfState) === true) {

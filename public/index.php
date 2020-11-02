@@ -37,7 +37,7 @@ try {
         $parameters = $matcher->match($context->getPathInfo())
     );
 
-    dump($parameters);
+    //dump($parameters);
 
     if (is_null($parameters) === true) {
         throw new ResourceNotFoundException('Request parameters are empty.', Response::HTTP_NOT_FOUND);

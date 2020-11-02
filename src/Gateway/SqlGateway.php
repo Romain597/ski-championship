@@ -185,4 +185,9 @@ class SqlGateway implements GatewayInterface
         }
         return $queryStatement;
     }
+
+    public function getLastInsertId(): int
+    {
+        return (int) $this->pdo->lastInsertId();
+    }
 }

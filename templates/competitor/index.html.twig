@@ -2,11 +2,13 @@
 
 {% block title %}Participants{% endblock %}
 {% block content %}
+    <a href="/epreuve/participant/ajout/{{ contest.identifier }}" class="btn btn-danger">Ajouter un participant</a>
     <h1>Liste des participants</h1>
     <div class="table-responsive">
         <table class="table">
             <thead class="thead-light">
                 <tr>
+                    <th scope="col">Action</th>
                     <th scope="col">Nom</th>
                     <th scope="col">Prénom</th>
                     <th scope="col">Dossard</th>
@@ -18,10 +20,11 @@
             <tbody>
                 {% for competitor in competitors %}
                     <tr>
+                        <td><a href="/epreuve/participant/suppression/{{ contest.identifier }}/{{ competitor.identifier }}" class="btn btn-danger">Supprimer</a><a href="/epreuve/participant/modification/{{ contest.identifier }}/{{ competitor.identifier }}" class="btn btn-warning">Modifier</a><a href="/epreuve/participant/{{ contest.identifier }}/{{ competitor.identifier }}" class="btn btn-secondary">Voir</a></td>
                         <td>{{ competitor.name }}</td>
                         <td>{{ competitor.firstName }}</td>
                         <td>{{ competitor.raceNumber }}</td>
-                        <td>{{ competitor.birthDate|date('d/m/Y', timezone="Europe/Paris") }}</td>
+                        <td>{{ competitor.birthDate }}</td>
                         <td>{{ competitor.emailAddress }}</td>
                         <td>{{ competitor.photo }}</td>
                     </tr>

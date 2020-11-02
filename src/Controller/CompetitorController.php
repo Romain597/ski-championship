@@ -14,6 +14,7 @@ class CompetitorController extends AbstractController
     private int $limitByPage = self::LIMIT_BY_PAGE;
     private string $csvCharset = self::CSV_CHARSET;
     private string $csvDelimiter = self::CSV_DELIMITER;
+    private const DATE_FORMAT = 'd/m/Y';
 
     public function __construct(Environment $twig)
     {
@@ -22,17 +23,25 @@ class CompetitorController extends AbstractController
 
     public function viewList(Request $request): Response
     {
-        //$page = $request->attributes->get('page', 0);
-        require __DIR__ . '/../../config/database/mysqlMainDatabase.php';
+        $idContest = $request->attributes->get('contest', null);
+        if (is_null($idContest) === true) {
+            throw new \Exception("Pas d'épreuve sélectioné.");
+        }
+        extract($this->getGatewayConfiguration(self::MAIN_DATABASE_CONF_FILE));
         if (!isset($dsn) === true || !isset($user) === true || !isset($password) === true) {
             throw new \Exception("Les données de connexion à la base de données ne sont pas tous initialisés.");
         }
         $mysqlGateway = new SqlGateway($dsn, $user, $password, $request);
         $repository = $this->getRepository(__CLASS__, $mysqlGateway);
-        $dataList = $repository->findAll();
+        $dataList = $repository->findBy(["contest_identifier = $idContest"], ['race_number ASC']);
         $dataToRender = ['competitors' => []];
         if (is_null($dataList) === false) {
-            $dataToRender['competitors'] = $dataList;
+            //$dataToRender['competitors'] = $dataList;
+            foreach ($dataList as $competitor) {
+                $competitorArray = $competitor->toArray();
+                $competitorArray['birthDate'] = $competitorArray['birthDate']->format(self::DATE_FORMAT);
+                $dataToRender['competitors'][] = $competitorArray;
+            }
         }
         //dump($dataToRender);
         return new Response(

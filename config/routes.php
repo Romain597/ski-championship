@@ -16,7 +16,7 @@ $routes->add(
 );
 
 // Contest
-// List of Contest
+// List of contest
 // '/epreuves/page/{page}',
 $routes->add(
     'contest_list',
@@ -64,9 +64,99 @@ $routes->add(
 $routes->add(
     'contest_modify',
     new Route(
-        '/epreuve/{contest}/modification/{slug}',
+        '/epreuve/modification/{contest}',
         [
             '_controller' => 'App\Controller\ContestController::viewModify',
+            'slug' => ''
+        ],
+        [
+            'contest' => '\d+',
+            'slug' => '[\w\-]*'
+        ]
+    )
+);
+// Delete a contest
+$routes->add(
+    'contest_delete',
+    new Route(
+        '/epreuve/suppression/{contest}',
+        [
+            '_controller' => 'App\Controller\ContestController::viewDelete',
+            'slug' => ''
+        ],
+        [
+            'contest' => '\d+',
+            'slug' => '[\w\-]*'
+        ]
+    )
+);
+
+// Competitor
+// List of competitor
+$routes->add(
+    'competitor_list',
+    new Route(
+        '/epreuve/participants/{contest}',
+        [
+            '_controller' => 'App\Controller\CompetitorController::viewList',
+            'page' => 1
+        ],
+        [
+            'page' => '\d+'
+        ]
+    )
+);
+// View a competitor
+$routes->add(
+    'contest_view',
+    new Route(
+        '/epreuve/participant/{contest}/{competitor}',
+        [
+            '_controller' => 'App\Controller\CompetitorController::viewOne',
+            'slug' => ''
+        ],
+        [
+            'contest' => '\d+',
+            'slug' => '[\w\-]*'
+        ]
+    )
+);
+// Add a competitor
+$routes->add(
+    'competitor_add',
+    new Route(
+        '/epreuve/participant/ajout/{contest}/{competitor}',
+        [
+            '_controller' => 'App\Controller\CompetitorController::viewAdd',
+            'page' => 1
+        ],
+        [
+            'page' => '\d+'
+        ]
+    )
+);
+// Modify a competitor
+$routes->add(
+    'competitor_modify',
+    new Route(
+        '/epreuve/participant/modification/{contest}/{competitor}',
+        [
+            '_controller' => 'App\Controller\CompetitorController::viewModify',
+            'slug' => ''
+        ],
+        [
+            'contest' => '\d+',
+            'slug' => '[\w\-]*'
+        ]
+    )
+);
+// Delete a competitor
+$routes->add(
+    'competitor_delete',
+    new Route(
+        '/epreuve/participant/suppression/{contest}/{competitor}',
+        [
+            '_controller' => 'App\Controller\CompetitorController::viewDelete',
             'slug' => ''
         ],
         [

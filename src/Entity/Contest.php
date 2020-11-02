@@ -21,7 +21,7 @@ class Contest implements EntityInterface
     private string $location;
     private \DateTimeInterface $beginAt;
     private \DateTimeInterface $endAt;
-    private const TIME_ZONE = 'Europe/Paris';
+    public const TIME_ZONE = 'Europe/Paris';
 
     /**
      * Construct and initialize the instance of the object

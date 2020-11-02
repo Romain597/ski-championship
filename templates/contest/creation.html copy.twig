@@ -1,0 +1,54 @@
+{% extends "index.html.twig" %}
+
+{% block title %}Ajouter une épreuve{% endblock %}
+{% block content %}
+    <a href="#" class="btn btn-primary">Retour</a>
+    <h1>Ajouter une épreuve</h1>
+    <form class="needs-validation" novalidate>
+        <div class="col-md-6 mb-3">
+            <label for="validationCustom01">Nom de l'épreuve</label>
+            <input type="text" class="form-control" id="validationCustom01" value="" required>
+            <div class="invalid-feedback">
+                Vide
+            </div>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="validationCustom02">Lieu de l'épreuve</label>
+            <input type="text" class="form-control" id="validationCustom02" value="" required>
+            <div class="invalid-feedback">
+                Vide
+            </div>
+        </div>
+        <div class="form-group col-md-6 mb-3">
+            <label for="validationCustom02">Début de l'épreuve</label>
+            <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+                <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker2"/>
+                <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+                    <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                </div>
+            </div>
+            <div class="invalid-feedback">
+                Vide
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-6 mb-3">
+                <label for="validationCustom02">Fin de l'épreuve</label>
+                <div class="input-group date" id="datetimepicker2" data-target-input="nearest">
+                    <input type="text" class="form-control datetimepicker-input" data-target="#datetimepicker2"/>
+                    <div class="input-group-append" data-target="#datetimepicker2" data-toggle="datetimepicker">
+                        <div class="input-group-text"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </div>
+                <div class="invalid-feedback">
+                    Vide
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <input type="text" name="timepicker" class="timepicker"/>
+            </div>
+        </div>
+        <button class="btn btn-success" type="submit">Terminer</button>
+        <button class="btn btn-success" type="submit">Participants</button>
+    </form>
+{% endblock %}

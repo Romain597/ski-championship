@@ -23,9 +23,10 @@ class CompetitorRepository extends AbstractRepository implements RepositoryInter
         return $this->competitorManager;
     }
 
-    public function add(EntityInterface $competitor): void
+    public function add(EntityInterface $competitor): int
     {
-        $this->competitorManager->save($competitor->toArray());
+        $id = $this->competitorManager->save($competitor->toArray());
+        return $id;
     }
 
     public function remove(int $id): void
@@ -45,14 +46,14 @@ class CompetitorRepository extends AbstractRepository implements RepositoryInter
         return empty($arrayOfState) === true ? null : Competitor::fromState($arrayOfState[0]);
     }
 
-    public function findBy(array $conditions, int $offset = 0, int $limit = 0, array $group = [], array $having = [], array $order = []): ?array
+    public function findBy(array $conditions, array $orders = [], int $offset = 0, int $limit = 0, array $groups = [], array $havings = []): ?array
     {
         $alias = $this->competitorManager->getTableAlias();
         $conditionsForModel = $this->getConditions($alias, $conditions);
-        if ($this->competitorManager->isValidConditions($having) === false) {
+        if ($this->competitorManager->isValidConditions($havings) === false) {
             throw new \Exception("Il y a un problème d'opérateur dans le paramètre HAVING.");
         }
-        $filters = $this->getFilters($alias, $offset, $limit, $group, $having, $order);
+        $filters = $this->getFilters($alias, $offset, $limit, $groups, $havings, $orders);
         $arrayOfState = $this->competitorManager->search($conditionsForModel, $filters);
         $arrayOfCompetitor = [];
         if (!empty($arrayOfState) === true) {

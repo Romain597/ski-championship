@@ -1,9 +1,27 @@
 {% extends "index.html.twig" %}
 
-{% block title %}Epreuve{% endblock %}
+{% block title %}Détail Épreuve{% endblock %}
 {% block content %}
-    <h1>Vue épreuve N</h1>
-    <p class="important">
-        page d'une épreuve.
-    </p>
+    <a href="/epreuves" class="btn btn-primary">Retour</a>
+    <h1>Détail de l'épreuve</h1>
+    <form novalidate>
+        <div class="col-md-6 mb-3">
+            <label for="validationCustom01">Nom de l'épreuve</label>
+            <input type="text" name="name" class="form-control" id="validationCustom01" value="{{ contest.name }}" readonly>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="validationCustom02">Lieu de l'épreuve</label>
+            <input type="text" name="location" class="form-control" id="validationCustom02" value="{{ contest.location }}" readonly>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="validationCustom02">Début de l'épreuve</label>
+            <input type="text" name="begin" class="form-control" id="validationCustom02" value="{{ contest.beginAt }}" readonly>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label for="validationCustom02">Fin de l'épreuve</label>
+            <input type="text" name="end" class="form-control" id="validationCustom02" value="{{ contest.endAt }}" readonly>
+        </div>
+    </form>
+    <button class="btn btn-secondary" id="export">Exporter la liste des participants</button>
+    <button class="btn btn-secondary" id="import">Importer les temps de l'épreuve</button>
 {% endblock %}

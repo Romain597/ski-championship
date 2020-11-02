@@ -2,11 +2,13 @@
 
 {% block title %}Épreuves{% endblock %}
 {% block content %}
+    <a href="/epreuve/ajout" class="btn btn-primary">Ajouter une épreuve</a>
     <h1>Liste des épreuves</h1>
     <div class="table-responsive">
         <table class="table">
             <thead class="thead-light">
                 <tr>
+                    <th scope="col">Action</th>
                     <th scope="col">Épreuve</th>
                     <th scope="col">Lieu</th>
                     <th scope="col">Date de début</th>
@@ -16,10 +18,11 @@
             <tbody>
                 {% for contest in contests %}
                     <tr>
+                        <td><a href="/epreuve/suppression/{{ contest.identifier }}" class="btn btn-danger">Supprimer</a><a href="/epreuve/modification/{{ contest.identifier }}" class="btn btn-warning">Modifier</a><a href="/epreuve/{{ contest.identifier }}" class="btn btn-secondary">Voir</a></td>
                         <td>{{ contest.name }}</td>
                         <td>{{ contest.location }}</td>
-                        <td>{{ contest.beginAt | date('d/m/Y H:i', timezone="Europe/Paris") }}</td>
-                        <td>{{ contest.endAt | date('d/m/Y H:i', timezone="Europe/Paris") }}</td>
+                        <td>{{ contest.beginAt }}</td>
+                        <td>{{ contest.endAt }}</td>
                     </tr>
                 {% else %}
                     <p class="">Aucune épreuves, voulez-vous en ajouter une ?</p>

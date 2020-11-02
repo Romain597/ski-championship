@@ -17,7 +17,7 @@ class ProfileModel extends AbstractModel implements ModelInterface
         $this->gateway->createConnection();
     }
 
-    public function save(array $dataProfile): void
+    public function save(array $dataProfile): int
     {
         $requestData = [];
         $requestData['name'] = '"' . $dataProfile['name'] . '"';
@@ -26,7 +26,8 @@ class ProfileModel extends AbstractModel implements ModelInterface
             throw new \Exception('There is already a profile corresponding to this data.');
         }
         if (is_null($dataProfile['identifier']) === true) {
-            $this->insert($requestData);
+            $id = $this->insert($requestData);
+            return $id;
         } else {
             $updateData = [];
             $resultArray = $this->checkModification((int) $dataProfile['identifier'], $requestData);
@@ -37,6 +38,7 @@ class ProfileModel extends AbstractModel implements ModelInterface
                 }
             }
             $this->update((int) $dataProfile['identifier'], $updateData);
+            return (int) $dataProfile['identifier'];
         }
     }
 
@@ -73,20 +75,23 @@ class ProfileModel extends AbstractModel implements ModelInterface
 
     private function update(int $id, array $dataToUpdate): void
     {
-        $setUpdate = '';
-        foreach ($dataToUpdate as $field => $fieldValue) {
-            $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+        if (!empty($dataToUpdate)) {
+            $setUpdate = '';
+            foreach ($dataToUpdate as $field => $fieldValue) {
+                $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+            }
+            $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
+            $request = 'UPDATE profile SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
+            $this->gateway->query($request);
         }
-        $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
-        $request = 'UPDATE profile SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
-        $this->gateway->query($request);
     }
 
-    private function insert(array $dataToInsert): void
+    private function insert(array $dataToInsert): int
     {
         $request = 'INSERT INTO profile(identifier, name, description)
             VALUES (NULL,' . $dataToInsert['name'] . ',' . $dataToInsert['description'] . ');';
         $this->gateway->query($request);
+        return $this->gateway->getLastInsertId();
     }
 
     public function search(array $conditions = [], array $filters = [], bool $distinct = false): array

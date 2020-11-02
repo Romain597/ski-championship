@@ -17,7 +17,7 @@ class StopwatchModel extends AbstractModel implements ModelInterface
         $this->gateway->createConnection();
     }
 
-    public function save(array $dataStopwatch): void
+    public function save(array $dataStopwatch): int
     {
         $requestData = [];
         $requestData['turn'] = $dataStopwatch['turn'];
@@ -28,7 +28,8 @@ class StopwatchModel extends AbstractModel implements ModelInterface
             throw new \Exception('There is already a stopwatch corresponding to this data.');
         }
         if (is_null($dataStopwatch['identifier']) === true) {
-            $this->insert($requestData);
+            $id = $this->insert($requestData);
+            return $id;
         } else {
             $updateData = [];
             $resultArray = $this->checkModification((int) $dataStopwatch['identifier'], $requestData);
@@ -39,6 +40,7 @@ class StopwatchModel extends AbstractModel implements ModelInterface
                 }
             }
             $this->update((int) $dataStopwatch['identifier'], $updateData);
+            return (int) $dataStopwatch['identifier'];
         }
     }
 
@@ -76,20 +78,23 @@ class StopwatchModel extends AbstractModel implements ModelInterface
 
     private function update(int $id, array $dataToUpdate): void
     {
-        $setUpdate = '';
-        foreach ($dataToUpdate as $field => $fieldValue) {
-            $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+        if (!empty($dataToUpdate)) {
+            $setUpdate = '';
+            foreach ($dataToUpdate as $field => $fieldValue) {
+                $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+            }
+            $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
+            $request = 'UPDATE stopwatch SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
+            $this->gateway->query($request);
         }
-        $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
-        $request = 'UPDATE stopwatch SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
-        $this->gateway->query($request);
     }
 
-    private function insert(array $dataToInsert): void
+    private function insert(array $dataToInsert): int
     {
         $request = 'INSERT INTO stopwatch(identifier, contest_identifier, competitor_identifier, turn, time)
             VALUES (NULL,' . $dataToInsert['contest_identifier'] . ',' . $dataToInsert['competitor_identifier'] . ',' . $dataToInsert['turn'] . ',' . $dataToInsert['time'] . ');';
         $this->gateway->query($request);
+        return $this->gateway->getLastInsertId();
     }
 
     public function search(array $conditions = [], array $filters = [], bool $distinct = false): array

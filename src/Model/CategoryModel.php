@@ -17,7 +17,7 @@ class CategoryModel extends AbstractModel implements ModelInterface
         $this->gateway->createConnection();
     }
 
-    public function save(array $dataCategory): void
+    public function save(array $dataCategory): int
     {
         $requestData = [];
         $requestData['name'] = '"' . $dataCategory['name'] . '"';
@@ -26,7 +26,8 @@ class CategoryModel extends AbstractModel implements ModelInterface
             throw new \Exception('There is already a category corresponding to this data.');
         }
         if (is_null($dataCategory['identifier']) === true) {
-            $this->insert($requestData);
+            $id = $this->insert($requestData);
+            return $id;
         } else {
             $updateData = [];
             $resultArray = $this->checkModification((int) $dataCategory['identifier'], $requestData);
@@ -37,6 +38,7 @@ class CategoryModel extends AbstractModel implements ModelInterface
                 }
             }
             $this->update((int) $dataCategory['identifier'], $updateData);
+            return (int) $dataCategory['identifier'];
         }
     }
 
@@ -73,20 +75,23 @@ class CategoryModel extends AbstractModel implements ModelInterface
 
     private function update(int $id, array $dataToUpdate): void
     {
-        $setUpdate = '';
-        foreach ($dataToUpdate as $field => $fieldValue) {
-            $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+        if (!empty($dataToUpdate)) {
+            $setUpdate = '';
+            foreach ($dataToUpdate as $field => $fieldValue) {
+                $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+            }
+            $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
+            $request = 'UPDATE category SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
+            $this->gateway->query($request);
         }
-        $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
-        $request = 'UPDATE category SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
-        $this->gateway->query($request);
     }
 
-    private function insert(array $dataToInsert): void
+    private function insert(array $dataToInsert): int
     {
         $request = 'INSERT INTO category(identifier, name, description)
             VALUES (NULL,' . $dataToInsert['name'] . ',' . $dataToInsert['description'] . ');';
         $this->gateway->query($request);
+        return $this->gateway->getLastInsertId();
     }
 
     public function search(array $conditions = [], array $filters = [], bool $distinct = false): array

@@ -17,7 +17,7 @@ class ContestModel extends AbstractModel implements ModelInterface
         $this->gateway->createConnection();
     }
 
-    public function save(array $dataContest): void
+    public function save(array $dataContest): int
     {
         $requestData = [];
         $requestData['name'] = '"' . $dataContest['name'] . '"';
@@ -30,7 +30,8 @@ class ContestModel extends AbstractModel implements ModelInterface
             throw new \Exception('There is already a contest corresponding to this data.');
         }
         if (is_null($dataContest['identifier']) === true) {
-            $this->insert($requestData);
+            $id = $this->insert($requestData);
+            return $id;
         } else {
             $updateData = [];
             $resultArray = $this->checkModification((int) $dataContest['identifier'], $requestData);
@@ -41,6 +42,7 @@ class ContestModel extends AbstractModel implements ModelInterface
                 }
             }
             $this->update((int) $dataContest['identifier'], $updateData);
+            return (int) $dataContest['identifier'];
         }
     }
 
@@ -80,21 +82,24 @@ class ContestModel extends AbstractModel implements ModelInterface
 
     private function update(int $id, array $dataToUpdate): void
     {
-        $setUpdate = '';
-        foreach ($dataToUpdate as $field => $fieldValue) {
-            $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+        if (!empty($dataToUpdate)) {
+            $setUpdate = '';
+            foreach ($dataToUpdate as $field => $fieldValue) {
+                $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+            }
+            $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
+            $request = 'UPDATE contest SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
+            $this->gateway->query($request);
         }
-        $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
-        $request = 'UPDATE contest SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
-        $this->gateway->query($request);
     }
 
-    private function insert(array $dataToInsert): void
+    private function insert(array $dataToInsert): int
     {
         $request = 'INSERT INTO contest(identifier, name, location, begin_date, end_date)
             VALUES (NULL,' . $dataToInsert['name'] . ',' . $dataToInsert['location'] . ', '
             . $dataToInsert['begin_date'] . ',' . $dataToInsert['end_date'] . ');';
         $this->gateway->query($request);
+        return $this->gateway->getLastInsertId();
     }
 
     public function search(array $conditions = [], array $filters = [], bool $distinct = false): array

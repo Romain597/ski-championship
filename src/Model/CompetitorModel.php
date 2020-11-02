@@ -17,7 +17,7 @@ class CompetitorModel extends AbstractModel implements ModelInterface
         $this->gateway->createConnection();
     }
 
-    public function save(array $dataCompetitor): void
+    public function save(array $dataCompetitor): int
     {
         $requestData = [];
         $requestData['contest_identifier'] = $dataCompetitor['contestIdentifier'];
@@ -34,7 +34,8 @@ class CompetitorModel extends AbstractModel implements ModelInterface
             throw new \Exception('There is already a competitor corresponding to this data.');
         }
         if (is_null($dataCompetitor['identifier']) === true) {
-            $this->insert($requestData);
+            $id = $this->insert($requestData);
+            return $id;
         } else {
             $updateData = [];
             $resultArray = $this->checkModification((int) $dataCompetitor['identifier'], $requestData);
@@ -45,6 +46,7 @@ class CompetitorModel extends AbstractModel implements ModelInterface
                 }
             }
             $this->update((int) $dataCompetitor['identifier'], $updateData);
+            return (int) $dataCompetitor['identifier'];
         }
     }
 
@@ -96,16 +98,18 @@ class CompetitorModel extends AbstractModel implements ModelInterface
 
     private function update(int $id, array $dataToUpdate): void
     {
-        $setUpdate = '';
-        foreach ($dataToUpdate as $field => $fieldValue) {
-            $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+        if (!empty($dataToUpdate)) {
+            $setUpdate = '';
+            foreach ($dataToUpdate as $field => $fieldValue) {
+                $setUpdate .= $field . ' = ' . $fieldValue . ', ';
+            }
+            $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
+            $request = 'UPDATE competitor SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
+            $this->gateway->query($request);
         }
-        $setUpdate = substr($setUpdate, 0, strlen($setUpdate) - 2);
-        $request = 'UPDATE competitor SET ' . $setUpdate . ' WHERE identifier = ' . $id . ';';
-        $this->gateway->query($request);
     }
 
-    private function insert(array $dataToInsert): void
+    private function insert(array $dataToInsert): int
     {
         $request = 'INSERT INTO competitor(identifier, contest_identifier, category_identifier, 
             profile_identifier, name, first_name, race_number, birth_date, email_address, photo)
@@ -115,6 +119,7 @@ class CompetitorModel extends AbstractModel implements ModelInterface
             . $dataToInsert['race_number'] . ', ' . $dataToInsert['birth_date'] . ','
             . $dataToInsert['email_address'] . ', ' . $dataToInsert['photo'] . ');';
         $this->gateway->query($request);
+        return $this->gateway->getLastInsertId();
     }
 
     public function search(array $conditions = [], array $filters = [], bool $distinct = false): array
