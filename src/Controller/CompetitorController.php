@@ -34,7 +34,7 @@ class CompetitorController extends AbstractController
         $mysqlGateway = new SqlGateway($dsn, $user, $password, $request);
         $repository = $this->getRepository(__CLASS__, $mysqlGateway);
         $dataList = $repository->findBy(["contest_identifier = $idContest"], ['race_number ASC']);
-        $dataToRender = ['competitors' => []];
+        $dataToRender = ['competitors' => [], 'contestIdentifier' => $idContest];
         if (is_null($dataList) === false) {
             //$dataToRender['competitors'] = $dataList;
             foreach ($dataList as $competitor) {

@@ -11,6 +11,7 @@ use Twig\Environment;
 use App\Gateway\SqlGateway;
 use App\Repository\ContestRepository;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ContestController extends AbstractController
 {
@@ -22,6 +23,19 @@ class ContestController extends AbstractController
     public function __construct(Environment $twig)
     {
         $this->twig = $twig;
+    }
+
+    public function test(): Response
+    {
+        $response = new StreamedResponse();
+        $response->setCallback(function () {
+            echo '<p>Hello World</p>';
+            flush();
+            sleep(2);
+            echo '<p>Hello World</p>';
+            flush();
+        });
+        return $response;
     }
 
     public function viewList(Request $request): Response
@@ -113,7 +127,7 @@ class ContestController extends AbstractController
         $id = $repository->add($newContest);
         $url = '/epreuves';
         if (isset($parameters['next'])) {
-            $url = "/epreuve/participants/$id?validation=ok";
+            $url = "/epreuve/participants/$id";
         }
         return new RedirectResponse($url);
     }
@@ -161,7 +175,7 @@ class ContestController extends AbstractController
         $repository->modify($newContest);
         $url = '/epreuves';
         if (isset($parameters['next'])) {
-            $url = "/epreuve/participants/$contestId?modification=ok";
+            $url = "/epreuve/participants/$contestId";
         }
         return new RedirectResponse($url);
     }

@@ -20,7 +20,7 @@ class CsvFileLoader implements FileLoaderInterface
         } catch (\LogicException $e) {
             throw new \Exception("Le fichier est un dossier.");
         }
-        return $this->fileHandler->isReadable() && $this->fileHandler->isFile() && $this->fileHandler->isWritable();
+        return $this->fileHandler->isFile() && ($this->fileHandler->isWritable() || $this->fileHandler->isReadable());
     }
 
     public function getFileHandler()

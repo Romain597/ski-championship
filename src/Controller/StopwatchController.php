@@ -18,6 +18,9 @@ use App\Model\AbstractModel;
 use App\Model\CompetitorModel;
 use App\Model\StopwatchModel;
 use App\Repository\CompetitorRepository;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class StopwatchController extends AbstractController
 {
@@ -49,7 +52,7 @@ class StopwatchController extends AbstractController
         //$model = $repository->getModel();
         $model = new StopwatchModel($mysqlGateway);
         $exportType = $this->getRankingExportType($exportTypeValue);
-        $dataList = $this->getRankingData($exportType, $model, $contestIdentifier);
+        $dataList = $this->getRankingData($exportType, $model, (int) $contestIdentifier);
         $dataToRender = ['rankings' => []];
         if (is_null($dataList) === false) {
             $dataToRender['rankings'] = $dataList;
@@ -106,14 +109,19 @@ class StopwatchController extends AbstractController
         $mysqlGateway = new SqlGateway($dsn, $user, $password, $request);
         $model = new StopwatchModel($mysqlGateway);
         $exportType = $this->getRankingExportType($exportTypeValue);
-        $dataList = $this->getRankingData($exportType, $model, $contestIdentifier);
-        $contestName = $this->getContestName($model, $contestIdentifier);
+        $dataList = $this->getRankingData($exportType, $model, (int) $contestIdentifier);
+        $contestName = $this->getContestName($model, (int) $contestIdentifier);
         extract($this->getRankingInfoFile($exportType, $contestName));
         $dateId = str_replace('.', '', uniqid('', true));
         $fileName = 'export_' . $contestFileName . $fileName . $dateId;
         $fileTitle = trim($fileTitle) . ' - ' . $contestName;
         $this->exportDataInDataSheet($dataList, trim($fileName), trim($fileTitle));
-        return new Response('ok', 200);
+        //return new RedirectResponse("/classement/$contestIdentifier");
+        $response = new BinaryFileResponse(__DIR__ . '/../../tmp/' . $fileName . '.csv', Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'text/csv');
+        //$response->headers->set('Content-Disposition', 'attachment;filename="' . $fileName);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $fileName . '.csv');
+        return $response;
     }
 
     private function getContestName(StopwatchModel $model, int $contestIdentifier): string
@@ -252,6 +260,13 @@ class StopwatchController extends AbstractController
         }
     }
 
+    private function getCompetitorFileName(string $contestName): string
+    {
+        $contestFileName = preg_replace('/[\s\(\)]+/', '_', trim($contestName));
+        $contestFileName = rtrim($contestFileName, '_') . '_';
+        return $contestFileName;
+    }
+
     public function exportDataSheetForContest(Request $request): Response
     { // exportTimeDataSheetForContest // exportEmptyTimeByCompetitor
         /*require __DIR__ . '/../../config/database/mysqlMainDatabase.php';
@@ -268,12 +283,20 @@ class StopwatchController extends AbstractController
         }
         $mysqlGateway = new SqlGateway($dsn, $user, $password, $request);
         $model = new StopwatchModel($mysqlGateway);
-        $sql = 'SELECT c.race_number, c.name, c.first_name, (NULL) AS time_1, (NULL) AS time_2 FROM competitor c WHERE c.contest_identifier = ' . $contestIdentifier . ' ORDER BY c.race_umber ASC;';
+        $sql = 'SELECT p.race_number, p.name, p.first_name, (NULL) AS time_1, (NULL) AS time_2 FROM competitor p WHERE p.contest_identifier = ' . $contestIdentifier . ' ORDER BY p.race_number ASC;';
         $dataList = $model->request($sql);
-        $fileName = 'test_export2';
-        $fileTitle = 'Championnat de ski (2020)';
+        $fileTitle = $this->getContestName($model, (int) $contestIdentifier);
+        $contestFileName = $this->getCompetitorFileName($fileTitle);
+        $dateId = str_replace('.', '', uniqid('', true));
+        $fileName = 'export_participants_' . $contestFileName . $dateId;
+        //dump($fileName);
         $this->exportDataInDataSheet($dataList, $fileName, $fileTitle);
-        return new Response('ok', 200);
+        //return new RedirectResponse("/epreuve/$contestIdentifier");
+        $response = new BinaryFileResponse(__DIR__ . '/../../tmp/' . $fileName . '.csv', Response::HTTP_OK);
+        $response->headers->set('Content-Type', 'text/csv');
+        //$response->headers->set('Content-Disposition', 'attachment;filename="' . $fileName);
+        $response->setContentDisposition(ResponseHeaderBag::DISPOSITION_ATTACHMENT, $fileName . '.csv');
+        return $response;
     }
 
     private function exportDataInDataSheet(array $dataList, string $fileName, string $fileTitle = ''): void
@@ -303,13 +326,13 @@ class StopwatchController extends AbstractController
             throw new \Exception("Les données de connexion à la base de données ne sont pas tous initialisés.");
         }
         $mysqlGateway = new SqlGateway($dsn, $user, $password, $request);
-        $stopwatchList = $this->importDataFromCsvFile($mysqlGateway, $contestIdentifier, $fileName);
+        $stopwatchList = $this->importDataFromCsvFile($mysqlGateway, (int) $contestIdentifier, $fileName);
         $repository = $this->getRepository(__CLASS__, $mysqlGateway);
         foreach ($stopwatchList as $stopwatch) {
             if ($stopwatch instanceof Stopwatch) {
                 $repository->add($stopwatch);
             }
         }
-        return new Response('ok', 200);
+        return new RedirectResponse("epreuve/export/participants/$contestIdentifier");
     }
 }

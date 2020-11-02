@@ -2,7 +2,7 @@
 
 {% block title %}Détail Épreuve{% endblock %}
 {% block content %}
-    <a href="/epreuves" class="btn btn-primary">Retour</a>
+    <a href="/epreuves" class="btn btn-secondary">Retour</a>
     <h1>Détail de l'épreuve</h1>
     <form novalidate>
         <div class="col-md-6 mb-3">
@@ -22,6 +22,35 @@
             <input type="text" name="end" class="form-control" id="validationCustom02" value="{{ contest.endAt }}" readonly>
         </div>
     </form>
-    <button class="btn btn-secondary" id="export">Exporter la liste des participants</button>
-    <button class="btn btn-secondary" id="import">Importer les temps de l'épreuve</button>
+    <a href="/epreuve/export/participants/{{ contest.identifier }}" class="btn btn-primary" id="export">Exporter la liste des participants</a>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#importModal">
+        Importer les temps de l'épreuve
+    </button>
+    <!--<a href="/test" class="btn btn-secondary" id="test">Test streaming</a>-->
+
+    <!-- Modal -->
+    <div class="modal fade" id="importModal" tabindex="-1" role="dialog" aria-labelledby="importModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="importModalLabel">Importer les temps des participants</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body">
+                <form action="/epreuve/import/temps-participants/{{ contest.identifier }}" method="POST">
+                    <div class="form-group">
+                      <label for="importFormControlFile">Chemin du fichier CSV</label>
+                      <input type="file" class="form-control-file" id="importFormControlFile">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Fermer</button>
+            <input type="submit" class="btn btn-success" value="Valider" />
+            </div>
+        </div>
+        </div>
+    </div>
 {% endblock %}

@@ -60,7 +60,7 @@ class AbstractController
         }
         $fileData = $parser->translateToFile($outputDataCharset, $fileTitle);
         $loader = new CsvFileLoader();
-        $writer = new CsvFileWriter($loader, __DIR__ . '/../tmp/' . $fileName . '.csv');
+        $writer = new CsvFileWriter($loader, __DIR__ . '/../../tmp/' . $fileName . '.csv');
         $writer->write($fileData, $fileDelimiter);
     }
 
@@ -73,7 +73,7 @@ class AbstractController
             throw new \Exception("Le fichier n'existe pas dans le dossier temporaire.");
         }
         $loader = new CsvFileLoader();
-        $reader = new CsvFileReader($loader, __DIR__ . '/../tmp/' . $fileName . '.csv');
+        $reader = new CsvFileReader($loader, __DIR__ . '/../../tmp/' . $fileName . '.csv');
         return $reader->read($fileDelimiter);
     }
 }

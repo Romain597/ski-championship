@@ -108,7 +108,7 @@ $routes->add(
 );
 // View a competitor
 $routes->add(
-    'contest_view',
+    'competitor_view',
     new Route(
         '/epreuve/participant/{contest}/{competitor}',
         [
@@ -215,11 +215,37 @@ $routes->add(
 );
 
 $routes->add(
-    'test_export',
+    'export_competitors',
     new Route(
-        '/epreuve/export',
+        '/epreuve/export/participants/{contest}',
         [
-            '_controller' => 'App\Controller\StopwatchController::export',
+            '_controller' => 'App\Controller\StopwatchController::exportDataSheetForContest'
+        ],
+        [
+            'contest' => '\d+'
+        ]
+    )
+);
+
+$routes->add(
+    'import_times',
+    new Route(
+        '/epreuve/import/temps-participants/{contest}',
+        [
+            '_controller' => 'App\Controller\StopwatchController::importTimeFromDataSheet'
+        ],
+        [
+            'contest' => '\d+'
+        ]
+    )
+);
+
+$routes->add(
+    'test',
+    new Route(
+        '/test',
+        [
+            '_controller' => 'App\Controller\ContestController::test'
         ]
     )
 );

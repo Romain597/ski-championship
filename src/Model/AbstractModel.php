@@ -61,16 +61,18 @@ abstract class AbstractModel
 
     public function isValidConditions(array $conditions): bool
     {
-        $operatorDirection = $this->getNextOperatorDirection($conditions[0]);
-        $conditionsLength = count($conditions);
-        foreach ($conditions as $index => $condition) {
-            if ($this->isValidOperator($index, $conditionsLength, $condition) === false) {
-                throw new \Exception("L'opérateur n'est pas à la bonne place. Aucun opérateur à gauche du premier et aucun opérateur à droite du dernier");
-            }
-            if ($index > 1 && $index < ($conditionsLength - 1)) {
-                if ($this->isValidOperatorDirection($operatorDirection, $condition) === false) {
-                    $translationDirection = $operatorDirection === 'right' ? 'droite' : 'gauche';
-                    throw new \Exception("L'ordre des conditions n'est pas correct. Il manque un opérateur à $translationDirection.");
+        if (!empty($conditions)) {
+            $operatorDirection = $this->getNextOperatorDirection($conditions[0]);
+            $conditionsLength = count($conditions);
+            foreach ($conditions as $index => $condition) {
+                if ($this->isValidOperator($index, $conditionsLength, $condition) === false) {
+                    throw new \Exception("L'opérateur n'est pas à la bonne place. Aucun opérateur à gauche du premier et aucun opérateur à droite du dernier");
+                }
+                if ($index > 1 && $index < ($conditionsLength - 1)) {
+                    if ($this->isValidOperatorDirection($operatorDirection, $condition) === false) {
+                        $translationDirection = $operatorDirection === 'right' ? 'droite' : 'gauche';
+                        throw new \Exception("L'ordre des conditions n'est pas correct. Il manque un opérateur à $translationDirection.");
+                    }
                 }
             }
         }
