@@ -2,8 +2,7 @@
     "name": "romain/ski-cup-logitud",
     "authors": [
         {
-            "name": "Romain Balestreri",
-            "email": "romain.balestreri@orange.fr"
+            "name": "Romain Balestreri"
         }
     ],
     "description": "Ski championship manager application",
